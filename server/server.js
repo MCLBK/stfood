@@ -31,6 +31,7 @@ app.use('/api', require('./routes/loyalty'));
 app.use('/api', require('./routes/favorites'));
 app.use('/api', require('./routes/qr'));
 app.use('/api', require('./routes/admin'));
+app.use('/api', require('./routes/reviews'));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'streetfood-server' }));
 
