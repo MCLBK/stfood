@@ -123,3 +123,15 @@ CREATE TABLE IF NOT EXISTS admin_users (
   username TEXT PRIMARY KEY,
   password_hash TEXT NOT NULL
 );
+
+-- Avis clients (modération admin requise avant publication)
+CREATE TABLE IF NOT EXISTS reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+  comment TEXT,
+  phone TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  approved INTEGER DEFAULT 0,
+  source TEXT DEFAULT 'site'  -- 'site' ou 'google'
+);
