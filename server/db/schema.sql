@@ -135,3 +135,16 @@ CREATE TABLE IF NOT EXISTS reviews (
   approved INTEGER DEFAULT 0,
   source TEXT DEFAULT 'site'  -- 'site' ou 'google'
 );
+
+
+-- Avis clients (source = 'google' pour les avis Maps importés, 'site' pour les avis déposés sur le site)
+CREATE TABLE IF NOT EXISTS reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+  comment TEXT,
+  phone TEXT,
+  source TEXT DEFAULT 'site',
+  created_at TEXT DEFAULT (datetime('now')),
+  approved INTEGER DEFAULT 0
+);
