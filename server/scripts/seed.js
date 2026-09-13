@@ -122,24 +122,33 @@ const insertDish = db.prepare(`
 const insertZone = db.prepare(`INSERT OR REPLACE INTO delivery_zones (id,label,fee,active,sort_order) VALUES (@id,@label,@fee,1,@sort_order)`);
 const insertAdmin = db.prepare(`INSERT OR IGNORE INTO admin_users (username, password_hash) VALUES (?, ?)`);
 
-const tx = db.transaction(() => {
-  for (const c of categories) insertCat.run(c);
-  for (const d of dishes) {
-    insertDish.run({
-      price_xl: null, price_xxl: null, price_simple: null, variants_json: null,
-      is_simple: 0, spicy_toggle: 0, viande_option: 0, color_option: 0, soon: 0,
-      photo: '', description: '',
-      ...d,
-    });
-  }
-  for (const z of deliveryZones) insertZone.run(z);
+function runSeed() {
+  const tx = db.transaction(() => {
+    for (const c of categories) insertCat.run(c);
+    for (const d of dishes) {
+      insertDish.run({
+        price_xl: null, price_xxl: null, price_simple: null, variants_json: null,
+        is_simple: 0, spicy_toggle: 0, viande_option: 0, color_option: 0, soon: 0,
+        photo: '', description: '',
+        ...d,
+      });
+    }
+    for (const z of deliveryZones) insertZone.run(z);
 
-  const adminUser = process.env.ADMIN_USERNAME || 'admin';
-  const adminPass = process.env.ADMIN_PASSWORD || 'streetfood2026';
-  insertAdmin.run(adminUser, hashPassword(adminPass));
-});
+    const adminUser = process.env.ADMIN_USERNAME || 'admin';
+    const adminPass = process.env.ADMIN_PASSWORD || 'streetfood2026';
+    insertAdmin.run(adminUser, hashPassword(adminPass));
+  });
 
-tx();
+  tx();
 
-console.log('✔ Menu, zones de livraison et compte admin initialisés.');
-console.log(`  Identifiant admin : ${process.env.ADMIN_USERNAME || 'admin'} (mot de passe dans .env)`);
+  console.log('✔ Menu, zones de livraison et compte admin initialisés.');
+  console.log(`  Identifiant admin : ${process.env.ADMIN_USERNAME || 'admin'} (mot de passe dans .env)`);
+}
+
+// Exécution directe UNIQUEMENT si le fichier est lancé en CLI (npm run seed)
+if (require.main === module) {
+  runSeed();
+}
+
+module.exports = { runSeed };
