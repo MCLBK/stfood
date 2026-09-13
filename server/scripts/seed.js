@@ -134,6 +134,35 @@ const deliveryZones = [
   { id: 'zone-autre',      label: "Autre quartier — le livreur confirme le prix", fee: 0, sort_order: 99 },
 ];
 
+// Avis Google Maps — importés manuellement depuis la fiche du restaurant.
+// Source = 'google', approuvés d'office (ce sont de vrais avis publics).
+const googleReviews = [
+  {
+    name: 'Ramatou Salifou',
+    rating: 5,
+    comment: "J'adore leur pâtes 🍝 surtout les coquillettes lifestyle format XL ❤️ 2500 seulement et je suis pleine 😹❤️ Juste que le service est lent quand il y a du monde donc vous pouvez les contacter et commander à l'avance.",
+    created_at: '2026-09-12 12:00:00',
+  },
+  {
+    name: 'Axel ALAKPATA',
+    rating: 3,
+    comment: "Franchement le cadre est beau et la cuisine aussi est très bonne. Néanmoins le service est à revoir totalement. C'est inadmissible d'attendre plus d'une heure et demi pour un plat de spaghetti. Je veux bien comprendre que ce n'est que le début mais un effort supplémentaire est demandé à l'équipe pour améliorer cette expérience très désagréable en matière de service.",
+    created_at: '2026-08-30 12:00:00',
+  },
+  {
+    name: 'Wisdom JIMAJA',
+    rating: 5,
+    comment: 'Bien situé et prix vraiment accessible à tous 🤩🔥',
+    created_at: '2026-08-16 12:00:00',
+  },
+  {
+    name: 'Kennet FADONOUGBO',
+    rating: 5,
+    comment: null,
+    created_at: '2026-09-06 12:00:00',
+  },
+];
+
 const insertCat = db.prepare(`INSERT OR REPLACE INTO categories (id,label,emoji,sort_order) VALUES (@id,@label,@emoji,@sort_order)`);
 const insertDish = db.prepare(`
   INSERT OR REPLACE INTO dishes
@@ -142,6 +171,11 @@ const insertDish = db.prepare(`
 `);
 const insertZone = db.prepare(`INSERT OR REPLACE INTO delivery_zones (id,label,fee,active,sort_order) VALUES (@id,@label,@fee,1,@sort_order)`);
 const insertAdmin = db.prepare(`INSERT OR IGNORE INTO admin_users (username, password_hash) VALUES (?, ?)`);
+
+const insertReview = db.prepare(`
+  INSERT INTO reviews (name, rating, comment, source, created_at, approved)
+  VALUES (@name, @rating, @comment, 'google', @created_at, 1)
+`);
 
 function runSeed() {
   const tx = db.transaction(() => {
@@ -155,6 +189,11 @@ function runSeed() {
       });
     }
     for (const z of deliveryZones) insertZone.run(z);
+        // Évite les doublons : n'insère les avis Google que si la table est vide
+    const reviewCount = db.prepare('SELECT COUNT(*) as count FROM reviews WHERE source = ?').get('google');
+    if (reviewCount.count === 0) {
+      for (const r of googleReviews) insertReview.run(r);
+    }
 
     const adminUser = process.env.ADMIN_USERNAME || 'admin';
     const adminPass = process.env.ADMIN_PASSWORD || 'streetfood2026';
