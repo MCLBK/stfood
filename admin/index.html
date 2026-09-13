@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Street Food — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/images/logo.jpg">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen" class="login-screen">
+  <form id="loginForm" class="login-card">
+    <img src="../assets/images/logo.jpg" alt="" class="login-logo">
+    <h1>Street Food — Admin</h1>
+    <p class="sub">Panneau de gestion du restaurant</p>
+    <div class="field">
+      <label>Identifiant</label>
+      <input type="text" id="loginUser" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn-primary">Se connecter</button>
+    <p class="error" id="loginError"></p>
+  </form>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="dashboard" class="dashboard" style="display:none;">
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div class="brand"><img src="../assets/images/logo.jpg" alt=""><span>Street Food — Admin</span></div>
+      <button class="btn-outline sm" onclick="logout()">Déconnexion</button>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="orders" onclick="switchTab('orders')">Commandes</button>
+      <button class="tab-btn" data-tab="menu" onclick="switchTab('menu')">Menu</button>
+      <button class="tab-btn" data-tab="delivery" onclick="switchTab('delivery')">Livraison</button>
+      <button class="tab-btn" data-tab="loyalty" onclick="switchTab('loyalty')">Fidélité</button>
+      <button class="tab-btn" data-tab="qr" onclick="switchTab('qr')">QR codes</button>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+
+    <!-- ---------- ORDERS ---------- -->
+    <section id="tab-orders" class="tab-panel active">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="panel-head">
+        <h2>Commandes</h2>
+        <button class="btn-outline sm" onclick="loadOrders()">Actualiser</button>
+      </div>
+      <div id="ordersList" class="orders-list"></div>
+    </section>
+
+    <!-- ---------- MENU ---------- -->
+    <section id="tab-menu" class="tab-panel">
+      <div class="panel-head">
+        <h2>Menu</h2>
+        <button class="btn-primary sm" onclick="openDishForm()">+ Nouveau plat</button>
+      </div>
+      <div id="dishForm" class="form-card" style="display:none;"></div>
+      <div id="dishesByCategory"></div>
+    </section>
+
+    <!-- ---------- DELIVERY ---------- -->
+    <section id="tab-delivery" class="tab-panel">
+      <div class="panel-head">
+        <h2>Zones de livraison</h2>
+      </div>
+      <div class="form-card">
+        <h3>Ajouter une zone</h3>
+        <form id="zoneForm" class="inline-form">
+          <input type="text" id="zoneId" placeholder="id (ex: zone-fidjrosse)" required>
+          <input type="text" id="zoneLabel" placeholder="Nom affiché" required>
+          <input type="number" id="zoneFee" placeholder="Frais (FCFA, 0 = le livreur confirme)" required>
+          <button type="submit" class="btn-primary sm">Ajouter</button>
+        </form>
+      </div>
+      <div id="zonesList" class="simple-table"></div>
+    </section>
+
+    <!-- ---------- LOYALTY ---------- -->
+    <section id="tab-loyalty" class="tab-panel">
+      <div class="panel-head"><h2>Fidélité</h2></div>
+      <p class="hint">Récompense tous les 8 commandes (numéro de téléphone donné à la commande).</p>
+      <div id="loyaltyList" class="simple-table"></div>
+    </section>
+
+    <!-- ---------- QR ---------- -->
+    <section id="tab-qr" class="tab-panel">
+      <div class="panel-head"><h2>QR codes</h2></div>
+      <p class="hint">Génère un QR code à imprimer sur les tables ou au comptoir. Scanné, il ouvre directement le site (avec, si renseigné, le numéro de table).</p>
+      <div class="qr-generator">
+        <input type="text" id="qrTable" placeholder="Numéro de table (optionnel)">
+        <button class="btn-primary sm" onclick="generateQr()">Générer</button>
+      </div>
+      <div id="qrPreview" class="qr-preview"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

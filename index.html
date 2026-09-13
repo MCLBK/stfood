@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>STREET FOOD — Cotonou | Goût de luxe, prix de rue</title>
+<meta name="description" content="Commandez en ligne chez STREET FOOD, Haie Vive, Cotonou. Livraison, à emporter ou sur place. Spaghettis, coquillettes, shawarma, boissons — dès 1000 FCFA.">
+
+<!-- Restaurant structured data (SEO local) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Street Food",
+  "servesCuisine": ["Street food", "Fast food"],
+  "priceRange": "1000 FCFA - 6000 FCFA",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Haie Vive",
+    "addressLocality": "Cotonou",
+    "addressCountry": "BJ"
+  },
+  "telephone": "+22901970303 44",
+  "openingHours": "Mo-Su 00:00-06:00,08:00-23:59"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   STREET FOOD — Design tokens
+   Palette dérivée du logo & des visuels de marque fournis :
+   rouge piment (#C31E2A), noir enseigne (#15110F),
+   crème affiche (#FAF5EC), vert tige (#3E7A45), braise (#E1571F)
+   ============================================================ */
+:root{
+  --ink:#15110F;
+  --ink-soft:#2A2422;
+  --paper:#FAF5EC;
+  --sand:#EFE6D4;
+  --red:#C31E2A;
+  --red-deep:#8C1620;
+  --ember:#E1571F;
+  --leaf:#3E7A45;
+  --line: rgba(21,17,15,0.12);
+  --radius-photo: 18px;
+  --radius-chip: 999px;
+  --shadow-hard: 4px 4px 0 var(--ink);
+  --maxw: 1180px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Manrope', sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:76px; /* room for sticky order bar */
+}
+img{max-width:100%; display:block;}
+.display{font-family:'Anton', sans-serif; text-transform:uppercase; letter-spacing:0.3px; line-height:0.95;}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px;}
+a{color:inherit; text-decoration:none;}
+button{font-family:inherit; cursor:pointer; border:none; background:none;}
+.visually-hidden{position:absolute; width:1px;height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+
+/* Focus visibility (accessibility) */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:3px solid var(--ember); outline-offset:2px;
+}
+
+/* ---------- Header ---------- */
+header.site{
+  position:sticky; top:0; z-index:60;
+  background:var(--ink);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.header-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 20px; max-width:var(--maxw); margin:0 auto;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand img{width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--red);}
+.brand span{font-family:'Anton'; color:var(--paper); font-size:1.05rem; letter-spacing:0.5px;}
+nav.primary{display:none; gap:28px;}
+nav.primary a{color:var(--paper); font-weight:600; font-size:0.92rem; opacity:0.85; padding:6px 0; border-bottom:2px solid transparent;}
+nav.primary a:hover{opacity:1; border-color:var(--red);}
+.header-actions{display:flex; align-items:center; gap:10px;}
+.cart-btn{
+  position:relative; display:flex; align-items:center; gap:6px;
+  background:var(--red); color:var(--paper); font-weight:700; font-size:0.85rem;
+  padding:9px 14px; border-radius:var(--radius-chip);
+}
+.cart-count{
+  position:absolute; top:-6px; right:-6px; background:var(--paper); color:var(--ink);
+  font-size:0.68rem; font-weight:800; width:19px; height:19px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+@media(min-width:860px){
+  nav.primary{display:flex;}
+}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative; min-height:78vh; display:flex; align-items:flex-end;
+  background:#000;
+}
+.hero img.bg{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.62;
+}
+.hero::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(21,17,15,0.15) 0%, rgba(21,17,15,0.35) 45%, rgba(21,17,15,0.96) 100%);
+}
+.hero-content{position:relative; z-index:2; padding:48px 20px 40px; max-width:var(--maxw); margin:0 auto; width:100%;}
+.hero-tag{
+  display:inline-flex; align-items:center; gap:8px; background:var(--red); color:var(--paper);
+  font-weight:800; font-size:0.78rem; padding:6px 14px; border-radius:var(--radius-chip); margin-bottom:18px;
+}
+.hero h1{color:var(--paper); font-size:clamp(2.6rem, 9vw, 5rem); margin-bottom:14px;}
+.hero h1 em{font-style:normal; color:var(--red);}
+.hero p.lead{color:var(--sand); font-size:1.05rem; max-width:480px; margin-bottom:28px; font-weight:500;}
+.hero-ctas{display:flex; flex-wrap:wrap; gap:12px;}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:15px 26px; border-radius:12px; font-weight:800; font-size:0.95rem;
+  transition:transform 0.15s ease;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--red); color:var(--paper); box-shadow:var(--shadow-hard);}
+.btn-ghost{background:transparent; color:var(--paper); border:2px solid rgba(250,245,236,0.5);}
+.btn-dark{background:var(--ink); color:var(--paper);}
+.btn-outline{background:transparent; color:var(--ink); border:2px solid var(--ink);}
+
+/* ---------- Order-mode section ---------- */
+.section{padding:56px 0;}
+.section-head{margin-bottom:28px;}
+.section-head .kicker{color:var(--red); font-weight:800; font-size:0.85rem; margin-bottom:6px; display:block;}
+.section-head h2{font-size:clamp(1.7rem, 5vw, 2.6rem);}
+.section-head p{color:var(--ink-soft); max-width:520px; margin-top:8px; font-size:0.98rem;}
+
+.mode-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+@media(min-width:720px){.mode-grid{grid-template-columns:repeat(3,1fr);}}
+.mode-card{
+  background:var(--ink); color:var(--paper); border-radius:16px; padding:26px 22px;
+  display:flex; flex-direction:column; gap:10px; text-align:left; border:2px solid var(--ink);
+  transition:transform 0.15s ease, border-color 0.15s ease;
+}
+.mode-card:hover{border-color:var(--red); transform:translateY(-3px);}
+.mode-card.active{background:var(--red); border-color:var(--red);}
+.mode-card .ic{width:42px; height:42px;}
+.mode-card h3{font-family:'Anton'; font-size:1.3rem; text-transform:uppercase;}
+.mode-card p{font-size:0.86rem; opacity:0.82; font-weight:500;}
+
+/* ---------- Menu ---------- */
+.cat-scroll{
+  display:flex; gap:10px; overflow-x:auto; padding:4px 0 18px; scrollbar-width:none;
+}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-chip{
+  flex:0 0 auto; display:flex; align-items:center; gap:8px;
+  background:var(--paper); border:2px solid var(--ink); color:var(--ink);
+  padding:10px 18px; border-radius:var(--radius-chip); font-weight:700; font-size:0.88rem;
+  white-space:nowrap;
+}
+.cat-chip .em{font-size:1.05rem;}
+.cat-chip.active{background:var(--ink); color:var(--paper);}
+
+.dish-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+@media(min-width:640px){.dish-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:960px){.dish-grid{grid-template-columns:repeat(4,1fr);}}
+
+.dish-card{
+  background:#fff; border:2px solid var(--ink); border-radius:16px; overflow:hidden;
+  display:flex; flex-direction:column; text-align:left;
+  box-shadow:var(--shadow-hard);
+}
+.dish-photo{position:relative; aspect-ratio:4/3; background:var(--sand); overflow:hidden;}
+.dish-photo img{width:100%; height:100%; object-fit:cover;}
+.dish-badge{
+  position:absolute; top:8px; left:8px; background:var(--red); color:var(--paper);
+  font-size:0.65rem; font-weight:800; padding:4px 9px; border-radius:var(--radius-chip);
+}
+.dish-badge.soon{background:var(--ink);}
+.dish-body{padding:12px 13px 14px; display:flex; flex-direction:column; gap:6px; flex:1;}
+.dish-body h4{font-size:0.95rem; font-weight:800; line-height:1.2;}
+.dish-body .desc{font-size:0.76rem; color:var(--ink-soft); opacity:0.85; flex:1;}
+.dish-foot{display:flex; align-items:center; justify-content:space-between; margin-top:4px;}
+.dish-price{font-weight:800; font-size:0.92rem;}
+.dish-price small{font-weight:600; font-size:0.68rem; opacity:0.6;}
+.add-btn{
+  width:34px; height:34px; border-radius:50%; background:var(--ink); color:var(--paper);
+  font-size:1.2rem; font-weight:800; display:flex; align-items:center; justify-content:center;
+}
+.dish-card.disabled{opacity:0.55;}
+.dish-card.disabled .add-btn{background:var(--line); color:var(--ink);}
+
+.special-strip{
+  margin-top:26px; background:var(--ink); border-radius:18px; padding:22px; color:var(--paper);
+  display:flex; flex-wrap:wrap; align-items:center; gap:18px; justify-content:space-between;
+}
+.special-strip .txt{max-width:420px;}
+.special-strip .kicker{color:var(--ember); font-weight:800; font-size:0.78rem; display:block; margin-bottom:4px;}
+.special-strip h3{font-family:'Anton'; font-size:1.5rem;}
+.special-strip p{font-size:0.85rem; opacity:0.82; margin-top:6px;}
+
+/* ---------- About / story ---------- */
+.about-grid{display:grid; grid-template-columns:1fr; gap:24px; align-items:center;}
+@media(min-width:800px){.about-grid{grid-template-columns:1fr 1fr;}}
+.about-photo{border-radius:var(--radius-photo); overflow:hidden; aspect-ratio:4/5; border:2px solid var(--ink);}
+.about-photo img{width:100%; height:100%; object-fit:cover;}
+.about-copy .kicker{color:var(--red); font-weight:800; font-size:0.85rem; display:block; margin-bottom:8px;}
+.about-copy h2{font-size:clamp(1.8rem,5vw,2.5rem); margin-bottom:14px;}
+.about-copy p{color:var(--ink-soft); margin-bottom:12px; font-size:1rem;}
+.about-facts{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;}
+.fact{border:2px solid var(--ink); border-radius:12px; padding:14px;}
+.fact strong{display:block; font-family:'Anton'; font-size:1.15rem;}
+.fact span{font-size:0.78rem; color:var(--ink-soft);}
+
+/* ---------- Reviews (honest placeholder) ---------- */
+.reviews-shell{
+  border:2px dashed var(--line); border-radius:18px; padding:30px 24px; text-align:center;
+  background:#fff;
+}
+.reviews-shell .stars{color:var(--ember); font-size:1.4rem; letter-spacing:3px; margin-bottom:10px;}
+.reviews-shell h3{font-size:1.15rem; margin-bottom:6px;}
+.reviews-shell p{color:var(--ink-soft); font-size:0.9rem; max-width:440px; margin:0 auto 16px;}
+
+/* ---------- Location/footer ---------- */
+.info-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+@media(min-width:760px){.info-grid{grid-template-columns:repeat(3,1fr);}}
+.info-card{background:#fff; border:2px solid var(--ink); border-radius:14px; padding:20px;}
+.info-card h4{font-size:0.78rem; letter-spacing:0.4px; color:var(--red); font-weight:800; margin-bottom:8px;}
+.info-card p{font-size:0.92rem; font-weight:600; line-height:1.5;}
+
+footer{background:var(--ink); color:var(--sand); padding:44px 0 100px; margin-top:20px;}
+.footer-grid{display:flex; flex-wrap:wrap; justify-content:space-between; gap:30px;}
+.footer-brand{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+.footer-brand img{width:38px; height:38px; border-radius:50%;}
+.footer-brand span{font-family:'Anton'; color:var(--paper); font-size:1.1rem;}
+footer .tag{font-size:0.85rem; opacity:0.7; max-width:280px;}
+.footer-col h5{color:var(--paper); font-size:0.78rem; letter-spacing:0.4px; margin-bottom:10px; opacity:0.9;}
+.footer-col a, .footer-col p{display:block; font-size:0.86rem; opacity:0.75; margin-bottom:7px;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.12); margin-top:30px; padding-top:18px; font-size:0.78rem; opacity:0.55;}
+
+/* ---------- Sticky order bar (mobile app-like) ---------- */
+.order-bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:70;
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px; box-shadow:0 -4px 18px rgba(0,0,0,0.25);
+}
+.order-bar .info{font-size:0.82rem; font-weight:700; display:flex; flex-direction:column;}
+.order-bar .info span{opacity:0.65; font-weight:600; font-size:0.72rem;}
+.order-bar button{
+  background:var(--red); color:var(--paper); font-weight:800; font-size:0.88rem;
+  padding:11px 20px; border-radius:var(--radius-chip);
+}
+
+/* ---------- Modal / drawer shell ---------- */
+.overlay{
+  position:fixed; inset:0; background:rgba(21,17,15,0.6); z-index:100;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.overlay.open{display:flex;}
+@media(min-width:720px){.overlay{align-items:center;}}
+
+.sheet{
+  background:var(--paper); width:100%; max-width:560px; max-height:92vh; overflow-y:auto;
+  border-radius:22px 22px 0 0; padding:24px 20px 28px; position:relative;
+}
+@media(min-width:720px){.sheet{border-radius:20px;}}
+.sheet-close{
+  position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:50%;
+  background:var(--ink); color:var(--paper); font-size:1.1rem; display:flex; align-items:center; justify-content:center;
+}
+.sheet h3.display{font-size:1.6rem; margin-bottom:4px; padding-right:40px;}
+
+/* Dish detail modal */
+.dm-photo{width:100%; aspect-ratio:16/10; border-radius:14px; overflow:hidden; margin-bottom:16px; border:2px solid var(--ink);}
+.dm-photo img{width:100%; height:100%; object-fit:cover;}
+.dm-desc{font-size:0.92rem; color:var(--ink-soft); margin-bottom:18px;}
+.opt-group{margin-bottom:18px;}
+.opt-label{font-weight:800; font-size:0.85rem; margin-bottom:8px; display:block;}
+.opt-row{display:flex; gap:10px; flex-wrap:wrap;}
+.opt-pill{
+  border:2px solid var(--ink); padding:9px 16px; border-radius:var(--radius-chip);
+  font-weight:700; font-size:0.85rem; background:#fff;
+}
+.opt-pill.selected{background:var(--ink); color:var(--paper);}
+.opt-pill.spicy.selected{background:var(--red); border-color:var(--red);}
+.qty-row{display:flex; align-items:center; gap:16px; margin:20px 0;}
+.qty-btn{width:38px; height:38px; border-radius:50%; border:2px solid var(--ink); font-size:1.2rem; font-weight:800; display:flex; align-items:center; justify-content:center;}
+.qty-val{font-family:'Anton'; font-size:1.3rem; min-width:24px; text-align:center;}
+.dm-add{width:100%; padding:16px; border-radius:14px; background:var(--red); color:var(--paper); font-weight:800; font-size:1rem; display:flex; justify-content:space-between; align-items:center; padding-left:20px; padding-right:20px;}
+
+/* Cart drawer */
+.cart-line{display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--line);}
+.cart-line img{width:56px; height:56px; border-radius:10px; object-fit:cover; border:1px solid var(--line);}
+.cart-line .cl-info{flex:1;}
+.cart-line .cl-info strong{font-size:0.9rem; display:block;}
+.cart-line .cl-info span{font-size:0.75rem; color:var(--ink-soft);}
+.cart-line .cl-price{font-weight:800; font-size:0.9rem; white-space:nowrap;}
+.cart-empty{text-align:center; padding:40px 10px; color:var(--ink-soft);}
+.cart-summary{margin-top:18px; border-top:2px solid var(--ink); padding-top:14px;}
+.sum-row{display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;}
+.sum-row.total{font-weight:800; font-size:1.1rem; font-family:'Anton';}
+
+/* Checkout form */
+.field{margin-bottom:16px;}
+.field label{display:block; font-weight:700; font-size:0.85rem; margin-bottom:6px;}
+.field input, .field select, .field textarea{
+  width:100%; padding:13px 14px; border-radius:10px; border:2px solid var(--ink); font-family:inherit; font-size:0.92rem;
+  background:#fff;
+}
+.field textarea{resize:vertical; min-height:64px;}
+.time-choice{display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+.time-choice button{
+  flex:1; min-width:120px; border:2px solid var(--ink); padding:12px; border-radius:12px; font-weight:700; font-size:0.85rem; background:#fff;
+}
+.time-choice button.selected{background:var(--ink); color:var(--paper);}
+.note-box{
+  background:var(--sand); border-left:4px solid var(--ember); border-radius:8px; padding:12px 14px; font-size:0.82rem; margin:6px 0 18px; color:var(--ink-soft);
+}
+
+/* Order tracking */
+.track-status{list-style:none; margin:24px 0;}
+.track-status li{display:flex; gap:14px; padding-bottom:22px; position:relative;}
+.track-status li::before{
+  content:""; width:14px; height:14px; border-radius:50%; background:var(--line); flex-shrink:0; margin-top:3px;
+}
+.track-status li::after{
+  content:""; position:absolute; left:6px; top:20px; bottom:0; width:2px; background:var(--line);
+}
+.track-status li:last-child::after{display:none;}
+.track-status li.done::before{background:var(--leaf);}
+.track-status li.current::before{background:var(--red); box-shadow:0 0 0 4px rgba(195,30,42,0.18);}
+.track-status li strong{display:block; font-size:0.92rem;}
+.track-status li span{font-size:0.78rem; color:var(--ink-soft);}
+.late-box{
+  background:var(--ink); color:var(--paper); border-radius:14px; padding:16px; margin-top:6px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.late-box p{font-size:0.85rem; opacity:0.85;}
+.late-box button{align-self:flex-start;}
+
+.toast{
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:var(--paper); padding:12px 20px; border-radius:var(--radius-chip);
+  font-weight:700; font-size:0.85rem; opacity:0; transition:all 0.25s ease; z-index:200; pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* Group order note */
+.group-note{
+  display:flex; align-items:flex-start; gap:10px; background:#fff; border:2px solid var(--ink);
+  border-radius:12px; padding:14px; margin-top:6px;
+}
+.group-note p{font-size:0.85rem; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site">
+  <div class="header-inner">
+    <a href="#home" class="brand">
+      <img src="assets/logo.jpg" alt="Logo Street Food">
+      <span>Street Food</span>
+    </a>
+    <nav class="primary">
+      <a href="#home">Accueil</a>
+      <a href="#menu">Menu</a>
+      <a href="#commander" onclick="openModeSheet();return false;">Commander</a>
+      <a href="#histoire">À propos</a>
+      <a href="#avis">Avis</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <button class="cart-btn" onclick="openCart()">
+        Panier <span id="cartHeaderTotal">0 F</span>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="home">
+  <img class="bg" src="assets/storefront-night.jpg" alt="">
+  <div class="hero-content">
+    <span class="hero-tag">Haie Vive, Cotonou · ouvert jusqu'à 6h</span>
+    <h1 class="display">Goût de luxe.<br><em>Prix de rue.</em></h1>
+    <p class="lead">Spaghettis, coquillettes, shawarma et sautés maison — à commander en quelques taps, sans compte, sans appel.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary" onclick="openModeSheet()">Commander maintenant</button>
+      <a href="#menu" class="btn btn-ghost">Voir le menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MODE DE COMMANDE ===================== -->
+<section class="section" id="commander">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Comment veux-tu ta commande ?</span>
+      <h2 class="display">Trois façons de manger Street Food</h2>
+      <p>Choisis un mode, on ne t'affichera que ce qui te concerne — pas de formulaire à rallonge.</p>
+    </div>
+    <div class="mode-grid">
+      <button class="mode-card" data-mode="livraison" onclick="selectModeAndOpen('livraison')">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>
+        <h3>Me faire livrer</h3>
+        <p>On t'apporte ta commande à l'adresse de ton choix.</p>
+      </button>
+      <button class="mode-card" data-mode="emporter" onclick="selectModeAndOpen('emporter')">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h16l-1.2 11.2a2 2 0 0 1-2 1.8H7.2a2 2 0 0 1-2-1.8L4 8z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>
+        <h3>Je viens récupérer</h3>
+        <p>Commande à l'avance, viens quand c'est prêt.</p>
+      </button>
+      <button class="mode-card" data-mode="surplace" onclick="selectModeAndOpen('surplace')">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>
+        <h3>Je mange sur place</h3>
+        <p>On prépare pendant que tu arrives. Clique "je suis arrivé" une fois là.</p>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MENU ===================== -->
+<section class="section" id="menu">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Le menu</span>
+      <h2 class="display">Choisis, tape rien, ajoute</h2>
+      <p>Sélectionne une catégorie puis un plat — tout se fait au doigt, sans avoir à écrire un nom.</p>
+    </div>
+
+    <div class="cat-scroll" id="catScroll">
+      <!-- injected by JS -->
+    </div>
+
+    <div class="dish-grid" id="dishGrid">
+      <!-- injected by JS -->
+    </div>
+
+    <div class="special-strip">
+      <div class="txt">
+        <span class="kicker">Édition du samedi · dès 23h59</span>
+        <h3>Riz blanc + sauce mouton</h3>
+        <p>Les Matins Bonheurs à Street Food. XL 2500 F · XXL 3000 F. Disponible uniquement le samedi soir.</p>
+      </div>
+      <button class="btn btn-primary" onclick="addSpecialToCart()">Ajouter</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HISTOIRE / A PROPOS ===================== -->
+<section class="section" id="histoire">
+  <div class="wrap about-grid">
+    <div class="about-photo">
+      <img src="assets/terrace-evening.jpg" alt="Terrasse Street Food le soir, Cotonou">
+    </div>
+    <div class="about-copy">
+      <span class="kicker">C'est quoi Street Food ?</span>
+      <h2 class="display">Une cafétéria moderne, pensée pour la Haie Vive</h2>
+      <p>Manger bon, vite et sans se ruiner — entre potes, après le boulot ou après une soirée. Street Food est le nouveau QG de ceux qui aiment les bonnes vibes, avant ou après la sortie.</p>
+      <p>Ouvert jusqu'à 6h du matin, pour te servir que tu sortes ou que tu rentres.</p>
+      <div class="about-facts">
+        <div class="fact"><strong>1000 F</strong><span>prix d'entrée sur le menu</span></div>
+        <div class="fact"><strong>6h00</strong><span>fermeture, tous les jours</span></div>
+        <div class="fact"><strong>Haie Vive</strong><span>Cotonou, Bénin</span></div>
+        <div class="fact"><strong>Invité</strong><span>commande possible sans compte</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AVIS ===================== -->
+<section class="section" id="avis">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Ce que pensent nos clients</span>
+      <h2 class="display">Les avis arrivent ici</h2>
+    </div>
+    <div class="reviews-shell">
+      <div class="stars">★★★★★</div>
+      <h3>Section prête, en attente des vrais avis Google</h3>
+      <p>Par souci d'honnêteté, aucun avis n'est affiché tant qu'il n'est pas récupéré directement depuis la fiche Google Maps du restaurant. Cet emplacement est prêt à afficher la note moyenne, le nombre d'avis et les commentaires réels dès qu'ils seront connectés.</p>
+      <a class="btn btn-outline" href="https://maps.app.goo.gl/EnqEnv3n4XteQ3vt9?g_st=ic" target="_blank" rel="noopener">Voir la fiche Google Maps</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== INFOS / CONTACT ===================== -->
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Nous trouver</span>
+      <h2 class="display">Infos pratiques</h2>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>ADRESSE</h4>
+        <p>Haie Vive, Cotonou, Bénin</p>
+        <a class="btn btn-outline" style="margin-top:12px; padding:10px 16px; font-size:0.82rem;" href="https://maps.app.goo.gl/EnqEnv3n4XteQ3vt9?g_st=ic" target="_blank" rel="noopener">Itinéraire</a>
+      </div>
+      <div class="info-card">
+        <h4>HORAIRES</h4>
+        <p>Ouvert jusqu'à 6h du matin, tous les jours</p>
+        <p style="margin-top:8px; font-weight:600; font-size:0.8rem; opacity:0.7;">Horaires à confirmer par le restaurant</p>
+      </div>
+      <div class="info-card">
+        <h4>CONTACT</h4>
+        <p>WhatsApp : (+229) 01 97 03 03 44</p>
+        <p style="margin-top:6px;">Instagram : @streetfoodcotonou</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <div class="footer-brand">
+        <img src="assets/logo.jpg" alt="">
+        <span>Street Food</span>
+      </div>
+      <p class="tag">Goût de luxe, prix de rue. La street food comme on l'aime : simple, rapide et accessible.</p>
+    </div>
+    <div class="footer-col">
+      <h5>NAVIGATION</h5>
+      <a href="#menu">Menu</a>
+      <a href="#commander" onclick="openModeSheet();return false;">Commander</a>
+      <a href="#histoire">À propos</a>
+      <a href="#avis">Avis</a>
+    </div>
+    <div class="footer-col">
+      <h5>PAIEMENT</h5>
+      <p>Paiement à la livraison ou au retrait</p>
+      <p style="opacity:0.5;">Paiement en ligne : bientôt disponible</p>
+    </div>
+    <div class="footer-col">
+      <h5>CONTACT</h5>
+      <p>Haie Vive, Cotonou</p>
+      <p>WhatsApp (+229) 01 97 03 03 44</p>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    Prototype de démonstration — données de menu réelles, avis et horaires à confirmer par le restaurant.
+  </div>
+</footer>
+
+<!-- ===================== STICKY ORDER BAR ===================== -->
+<div class="order-bar" id="orderBar" style="display:none;">
+  <div class="info">
+    <span id="orderBarMode">—</span>
+    <strong id="orderBarCount">0 article</strong>
+  </div>
+  <button onclick="openCart()">Voir le panier · <span id="orderBarTotal">0 F</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===================== OVERLAY SHEETS ===================== -->
+
+<!-- Mode selection sheet (when triggered from CTA before scrolling) -->
+<div class="overlay" id="modeOverlay" onclick="if(event.target===this) closeSheet('modeOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('modeOverlay')">✕</button>
+    <h3 class="display">Comment récupères-tu ta commande ?</h3>
+    <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:20px;">Choisis un mode pour commencer.</p>
+    <div class="mode-grid">
+      <button class="mode-card" style="background:var(--ink)" onclick="selectModeAndOpen('livraison')">
+        <h3>Me faire livrer</h3>
+        <p>Adresse + délai estimé</p>
+      </button>
+      <button class="mode-card" style="background:var(--ink)" onclick="selectModeAndOpen('emporter')">
+        <h3>Je viens récupérer</h3>
+        <p>Prêt à l'heure choisie</p>
+      </button>
+      <button class="mode-card" style="background:var(--ink)" onclick="selectModeAndOpen('surplace')">
+        <h3>Je mange sur place</h3>
+        <p>On prépare à ton arrivée</p>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Dish detail sheet -->
+<div class="overlay" id="dishOverlay" onclick="if(event.target===this) closeSheet('dishOverlay')">
+  <div class="sheet" id="dishSheetBody">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- Cart sheet -->
+<div class="overlay" id="cartOverlay" onclick="if(event.target===this) closeSheet('cartOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('cartOverlay')">✕</button>
+    <h3 class="display">Ton panier</h3>
+    <div id="cartLines"></div>
+    <div id="cartSummary"></div>
+  </div>
+</div>
+
+<!-- Checkout sheet -->
+<div class="overlay" id="checkoutOverlay" onclick="if(event.target===this) closeSheet('checkoutOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('checkoutOverlay')">✕</button>
+    <h3 class="display" id="checkoutTitle">Finaliser la commande</h3>
+    <div id="checkoutBody"></div>
+  </div>
+</div>
+
+<!-- Tracking sheet -->
+<div class="overlay" id="trackOverlay" onclick="if(event.target===this) closeSheet('trackOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('trackOverlay')">✕</button>
+    <h3 class="display">Commande <span id="trackOrderNum">#SF-0000</span></h3>
+    <p style="color:var(--ink-soft); font-size:0.88rem; margin-top:4px;" id="trackModeLabel"></p>
+    <ul class="track-status" id="trackStatusList"></ul>
+    <div id="trackActionZone"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DONNÉES DU MENU
+   -> Objet centralisé : c'est ICI que le restaurant (ou un futur
+      panneau d'administration) ajoute, modifie ou retire un plat.
+      Chaque catégorie/plat a un id stable, une dispo (true/false),
+      et une structure d'options commune à tous les plats.
+      Les plats marqués soon:true n'ont pas encore de prix officiel
+      communiqué -> ils s'affichent comme "bientôt" plutôt que
+      d'inventer un tarif.
+   ============================================================ */
+const MENU_DATA = {
+  categories: [
+    { id:'spaghettis',  label:'Spaghettis',   emoji:'🍝' },
+    { id:'coquillettes',label:'Coquillettes', emoji:'🥣' },
+    { id:'shawarma',    label:'Shawarma',     emoji:'🌯' },
+    { id:'sautes',      label:'Sautés',       emoji:'🍖' },
+    { id:'boissons',    label:'Boissons',     emoji:'🥤' },
+  ],
+  dishes: [
+    // ---- SPAGHETTIS (prix réels du menu fourni) ----
+    { id:'sp-lifestyle', cat:'spaghettis', name:'Spaghetti Lifestyle', desc:'Sauce crème, légumes, saucisses, oeufs, sardines.', photo:'assets/dish-spaghetti-1.jpg', xl:2500, xxl:3000, spicyToggle:true, viandeOption:true, available:true },
+    { id:'sp-crazy', cat:'spaghettis', name:'Spaghetti Crazy Vibes', desc:'Rouge ou blanc, légumes, saucisses, oeufs, sardines.', photo:'assets/dish-spaghetti-2.jpg', xl:2000, xxl:2500, spicyToggle:true, viandeOption:true, colorOption:true, available:true },
+    { id:'sp-good', cat:'spaghettis', name:'Spaghetti Good Vibes', desc:'Rouge ou blanc, saucisses, oeufs.', photo:'assets/dish-spaghetti-1.jpg', xl:1500, xxl:2000, spicyToggle:true, viandeOption:true, colorOption:true, available:true },
+
+    // ---- COQUILLETTES ----
+    { id:'co-lifestyle', cat:'coquillettes', name:'Coquillettes Lifestyle', desc:'Sauce crème, légumes, saucisses, oeufs, sardines.', photo:'assets/dish-bowls.jpg', xl:2500, xxl:3000, spicyToggle:true, viandeOption:true, available:true },
+    { id:'co-crazy', cat:'coquillettes', name:'Coquillettes Crazy Vibes', desc:'Rouge ou blanc, légumes, saucisses, oeufs, sardines.', photo:'assets/dish-bowls.jpg', xl:2000, xxl:2500, spicyToggle:true, viandeOption:true, colorOption:true, available:true },
+    { id:'co-good', cat:'coquillettes', name:'Coquillettes Good Vibes', desc:'Rouge ou blanc, saucisses, oeufs.', photo:'assets/dish-bowls.jpg', xl:1500, xxl:2000, spicyToggle:true, viandeOption:true, colorOption:true, available:true },
+
+    // ---- SHAWARMA / SAUTÉS : catégories existantes mais sans tarif officiel fourni ----
+    { id:'sh-poulet', cat:'shawarma', name:'Shawarma poulet', desc:'Bientôt sur le menu digital.', photo:'assets/interior-wall.jpg', soon:true },
+    { id:'sa-viande', cat:'sautes', name:'Sauté de viande', desc:'Bientôt sur le menu digital.', photo:'assets/interior-wall.jpg', soon:true },
+
+    // ---- BOISSONS (prix réels) ----
+    { id:'bo-pression', cat:'boissons', name:'Verre de pression', desc:'Bière pression au verre.', photo:'', price:2000, available:true, simple:true },
+    { id:'bo-biere', cat:'boissons', name:'Bière (Beaufort, Béninoise, Chill…)', desc:'Au choix selon disponibilité.', photo:'', price:1000, available:true, simple:true },
+    { id:'bo-soda', cat:'boissons', name:'Soda (Coca, Fanta, Sprite…)', desc:'Au choix selon disponibilité.', photo:'', price:1000, available:true, simple:true },
+    { id:'bo-energy', cat:'boissons', name:'Energy drink (Redbull, Monster…)', desc:'Au choix selon disponibilité.', photo:'', price:1500, available:true, simple:true },
+    { id:'bo-street', cat:'boissons', name:'Street drink (Bissap, lait caillé)', desc:'Fait maison.', photo:'', price:1000, available:true, simple:true },
+    { id:'bo-eau', cat:'boissons', name:'Eau minérale', desc:'À partir de 500 F selon le format.', photo:'', price:500, available:true, simple:true },
+  ]
+};
+
+const SPECIAL_DISH = { id:'special-riz-mouton', name:'Riz blanc + sauce mouton (Samedi)', xl:2500, xxl:3000, photo:'assets/dish-spaghetti-2.jpg' };
+
+/* ============================================================
+   ÉTAT DE L'APPLICATION
+   ============================================================ */
+let state = {
+  mode: null,           // 'livraison' | 'emporter' | 'surplace'
+  activeCat: 'spaghettis',
+  cart: [],             // {key, name, size, price, qty, spicy, viande, color, photo}
+  currentDish: null,
+  currentOptions: {},
+  orderCounter: 1024,
+  activeOrder: null,
+};
+
+function fmt(n){ return n.toLocaleString('fr-FR') + ' F'; }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------- Rendu catégories & plats ---------- */
+function renderCategories(){
+  const el = document.getElementById('catScroll');
+  el.innerHTML = MENU_DATA.categories.map(c => `
+    <button class="cat-chip ${c.id===state.activeCat?'active':''}" onclick="setCategory('${c.id}')">
+      <span class="em">${c.emoji}</span> ${c.label}
+    </button>
+  `).join('');
+}
+function setCategory(id){
+  state.activeCat = id;
+  renderCategories();
+  renderDishes();
+}
+function renderDishes(){
+  const el = document.getElementById('dishGrid');
+  const dishes = MENU_DATA.dishes.filter(d => d.cat === state.activeCat);
+  el.innerHTML = dishes.map(d => {
+    if(d.soon){
+      return `
+      <div class="dish-card disabled">
+        <div class="dish-photo"><img src="${d.photo}" alt=""><span class="dish-badge soon">Bientôt</span></div>
+        <div class="dish-body">
+          <h4>${d.name}</h4>
+          <p class="desc">${d.desc}</p>
+          <div class="dish-foot">
+            <span class="dish-price"><small>ajouté prochainement</small></span>
+            <span class="add-btn">＋</span>
+          </div>
+        </div>
+      </div>`;
+    }
+    if(d.simple){
+      return `
+      <div class="dish-card" onclick="openSimpleDish('${d.id}')">
+        <div class="dish-photo" style="display:flex;align-items:center;justify-content:center;background:var(--ink);">
+          <span style="font-size:2rem;">🥤</span>
+        </div>
+        <div class="dish-body">
+          <h4>${d.name}</h4>
+          <p class="desc">${d.desc}</p>
+          <div class="dish-foot">
+            <span class="dish-price">${fmt(d.price)}</span>
+            <span class="add-btn">＋</span>
+          </div>
+        </div>
+      </div>`;
+    }
+    return `
+    <div class="dish-card" onclick="openDish('${d.id}')">
+      <div class="dish-photo"><img src="${d.photo}" alt="${d.name}"></div>
+      <div class="dish-body">
+        <h4>${d.name}</h4>
+        <p class="desc">${d.desc}</p>
+        <div class="dish-foot">
+          <span class="dish-price">${fmt(d.xl)} <small>XL</small></span>
+          <span class="add-btn">＋</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- Fiche plat détaillée ---------- */
+function openDish(id){
+  const d = MENU_DATA.dishes.find(x=>x.id===id);
+  state.currentDish = d;
+  state.currentOptions = { size:'xl', spicy:false, viande:false, color:'rouge', qty:1 };
+  renderDishSheet();
+  document.getElementById('dishOverlay').classList.add('open');
+}
+function openSimpleDish(id){
+  const d = MENU_DATA.dishes.find(x=>x.id===id);
+  addToCart({
+    key: d.id + '-' + Date.now(),
+    name: d.name,
+    size: '',
+    price: d.price,
+    qty: 1,
+    photo: d.photo
+  });
+  showToast(d.name + ' ajouté au panier');
+}
+function renderDishSheet(){
+  const d = state.currentDish;
+  const o = state.currentOptions;
+  const price = o.size === 'xl' ? d.xl : d.xxl;
+  document.getElementById('dishSheetBody').innerHTML = `
+    <button class="sheet-close" onclick="closeSheet('dishOverlay')">✕</button>
+    ${d.photo ? `<div class="dm-photo"><img src="${d.photo}" alt="${d.name}"></div>` : ''}
+    <h3 class="display">${d.name}</h3>
+    <p class="dm-desc">${d.desc}</p>
+
+    <div class="opt-group">
+      <span class="opt-label">Taille</span>
+      <div class="opt-row">
+        <button class="opt-pill ${o.size==='xl'?'selected':''}" onclick="setDishOpt('size','xl')">XL · ${fmt(d.xl)}</button>
+        <button class="opt-pill ${o.size==='xxl'?'selected':''}" onclick="setDishOpt('size','xxl')">XXL · ${fmt(d.xxl)}</button>
+      </div>
+    </div>
+
+    ${d.colorOption ? `
+    <div class="opt-group">
+      <span class="opt-label">Sauce</span>
+      <div class="opt-row">
+        <button class="opt-pill ${o.color==='rouge'?'selected':''}" onclick="setDishOpt('color','rouge')">Rouge</button>
+        <button class="opt-pill ${o.color==='blanc'?'selected':''}" onclick="setDishOpt('color','blanc')">Blanc</button>
+      </div>
+    </div>` : ''}
+
+    ${d.spicyToggle ? `
+    <div class="opt-group">
+      <span class="opt-label">Niveau</span>
+      <div class="opt-row">
+        <button class="opt-pill ${!o.spicy?'selected':''}" onclick="setDishOpt('spicy',false)">Normal</button>
+        <button class="opt-pill spicy ${o.spicy?'selected':''}" onclick="setDishOpt('spicy',true)">Spicy</button>
+      </div>
+    </div>` : ''}
+
+    ${d.viandeOption ? `
+    <div class="opt-group">
+      <span class="opt-label">Avec viande</span>
+      <div class="opt-row">
+        <button class="opt-pill ${!o.viande?'selected':''}" onclick="setDishOpt('viande',false)">Sans</button>
+        <button class="opt-pill ${o.viande?'selected':''}" onclick="setDishOpt('viande',true)">Avec viande</button>
+      </div>
+    </div>` : ''}
+
+    <div class="qty-row">
+      <button class="qty-btn" onclick="setDishOpt('qty', Math.max(1, ${o.qty}-1))">−</button>
+      <span class="qty-val">${o.qty}</span>
+      <button class="qty-btn" onclick="setDishOpt('qty', ${o.qty}+1)">+</button>
+    </div>
+
+    <button class="dm-add" onclick="confirmAddDish()">
+      <span>Ajouter au panier</span>
+      <span>${fmt(price * o.qty)}</span>
+    </button>
+  `;
+}
+function setDishOpt(key, val){
+  state.currentOptions[key] = val;
+  renderDishSheet();
+}
+function confirmAddDish(){
+  const d = state.currentDish;
+  const o = state.currentOptions;
+  const price = o.size === 'xl' ? d.xl : d.xxl;
+  let label = d.name + ' · ' + o.size.toUpperCase();
+  if(d.colorOption) label += ' · ' + (o.color==='rouge'?'Rouge':'Blanc');
+  if(d.spicyToggle) label += o.spicy ? ' · Spicy' : ' · Normal';
+  if(d.viandeOption && o.viande) label += ' · avec viande';
+  addToCart({
+    key: d.id + '-' + JSON.stringify(o) + '-' + Date.now(),
+    name: d.name,
+    size: label.replace(d.name + ' · ',''),
+    price: price,
+    qty: o.qty,
+    photo: d.photo
+  });
+  closeSheet('dishOverlay');
+  showToast(d.name + ' ajouté au panier');
+}
+
+function addSpecialToCart(){
+  addToCart({
+    key: 'special-' + Date.now(),
+    name: SPECIAL_DISH.name,
+    size: 'XL',
+    price: SPECIAL_DISH.xl,
+    qty: 1,
+    photo: SPECIAL_DISH.photo
+  });
+  showToast('Riz blanc + sauce mouton ajouté');
+}
+
+/* ---------- Panier ---------- */
+function addToCart(item){
+  state.cart.push(item);
+  updateCartUI();
+}
+function removeFromCart(key){
+  state.cart = state.cart.filter(i=>i.key!==key);
+  updateCartUI();
+  renderCart();
+}
+function changeQty(key, delta){
+  const item = state.cart.find(i=>i.key===key);
+  if(!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  updateCartUI();
+  renderCart();
+}
+function cartTotal(){
+  return state.cart.reduce((s,i)=>s+i.price*i.qty, 0);
+}
+function cartCount(){
+  return state.cart.reduce((s,i)=>s+i.qty, 0);
+}
+function updateCartUI(){
+  document.getElementById('cartCount').textContent = cartCount();
+  document.getElementById('cartHeaderTotal').textContent = fmt(cartTotal());
+  const bar = document.getElementById('orderBar');
+  if(cartCount() > 0){
+    bar.style.display = 'flex';
+    document.getElementById('orderBarCount').textContent = cartCount() + (cartCount()>1?' articles':' article');
+    document.getElementById('orderBarTotal').textContent = fmt(cartTotal());
+    document.getElementById('orderBarMode').textContent = modeLabel(state.mode) || 'Mode non choisi';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+function modeLabel(m){
+  return { livraison:'Livraison', emporter:'À emporter', surplace:'Sur place' }[m] || '';
+}
+function renderCart(){
+  const lines = document.getElementById('cartLines');
+  const summary = document.getElementById('cartSummary');
+  if(state.cart.length===0){
+    lines.innerHTML = '<div class="cart-empty">Ton panier est vide pour l\\'instant.<br>Va faire un tour dans le menu 👀</div>';
+    summary.innerHTML = '';
+    return;
+  }
+  lines.innerHTML = state.cart.map(i => `
+    <div class="cart-line">
+      ${i.photo ? `<img src="${i.photo}" alt="">` : `<div style="width:56px;height:56px;border-radius:10px;background:var(--ink);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🥤</div>`}
+      <div class="cl-info">
+        <strong>${i.name}</strong>
+        <span>${i.size || ''}</span>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <button class="qty-btn" style="width:26px;height:26px;font-size:0.9rem;" onclick="changeQty('${i.key}',-1)">−</button>
+          <span style="font-weight:700;font-size:0.85rem;">${i.qty}</span>
+          <button class="qty-btn" style="width:26px;height:26px;font-size:0.9rem;" onclick="changeQty('${i.key}',1)">+</button>
+          <button style="font-size:0.75rem; text-decoration:underline; color:var(--red); margin-left:6px;" onclick="removeFromCart('${i.key}')">retirer</button>
+        </div>
+      </div>
+      <div class="cl-price">${fmt(i.price*i.qty)}</div>
+    </div>
+  `).join('');
+
+  const total = cartTotal();
+  summary.innerHTML = `
+    <div class="cart-summary">
+      <div class="sum-row"><span>Sous-total</span><span>${fmt(total)}</span></div>
+      <div class="sum-row" style="opacity:0.65;"><span>Frais (livraison / autres)</span><span>calculés à l'étape suivante</span></div>
+      <div class="sum-row total"><span>Total</span><span>${fmt(total)}</span></div>
+      <button class="btn btn-primary" style="width:100%; margin-top:14px;" onclick="goToCheckout()">Continuer</button>
+    </div>
+  `;
+}
+function openCart(){
+  renderCart();
+  document.getElementById('cartOverlay').classList.add('open');
+}
+function goToCheckout(){
+  if(state.cart.length===0){ showToast('Ajoute au moins un plat'); return; }
+  closeSheet('cartOverlay');
+  if(!state.mode){
+    openModeSheet();
+    showToast('Choisis d\\'abord un mode de commande');
+    return;
+  }
+  renderCheckout();
+  document.getElementById('checkoutOverlay').classList.add('open');
+}
+
+/* ---------- Sélection du mode ---------- */
+function openModeSheet(){
+  document.getElementById('modeOverlay').classList.add('open');
+}
+function selectModeAndOpen(mode){
+  state.mode = mode;
+  updateCartUI();
+  closeSheet('modeOverlay');
+  document.getElementById('commander').scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('#commander .mode-card').forEach(c=>{
+    c.classList.toggle('active', c.dataset.mode===mode);
+  });
+  showToast(modeLabel(mode) + ' sélectionné — choisis tes plats');
+  document.getElementById('menu').scrollIntoView({behavior:'smooth'});
+}
+
+/* ---------- Checkout (dynamique selon le mode) ---------- */
+function renderCheckout(){
+  document.getElementById('checkoutTitle').textContent = 'Finaliser : ' + modeLabel(state.mode);
+  let html = '';
+
+  if(state.mode === 'livraison'){
+    html = `
+      <div class="field"><label>Nom</label><input type="text" id="ck-name" placeholder="Ton nom"></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="ck-phone" placeholder="+229 ..."></div>
+      <div class="field"><label>Adresse de livraison</label><input type="text" id="ck-address" placeholder="Quartier, repère..."></div>
+      <div class="field"><label>Indications (optionnel)</label><textarea id="ck-notes" placeholder="Portail bleu, 2e étage..."></textarea></div>
+
+      <div class="opt-group">
+        <span class="opt-label">Quand ?</span>
+        <div class="time-choice">
+          <button class="selected" data-time="asap" onclick="pickTime(this,'asap')">Dès que possible</button>
+          <button data-time="later" onclick="pickTime(this,'later')">Programmer</button>
+        </div>
+      </div>
+      <div class="field" id="scheduleField" style="display:none;">
+        <label>Heure souhaitée</label>
+        <input type="time" id="ck-time">
+        <div class="note-box">On garde ta commande prête jusqu'à environ 15 min après l'heure choisie. Un imprévu, un peu de retard ? Pas de souci : préviens-nous simplement depuis le suivi de commande, on ajuste la préparation.</div>
+      </div>
+
+      <div class="field"><label>Paiement</label>
+        <select id="ck-pay"><option>Paiement à la livraison</option></select>
+      </div>
+      <div class="note-box">Frais de livraison et délai estimé affichés à la confirmation, selon ta zone.</div>
+    `;
+  }
+  if(state.mode === 'emporter'){
+    html = `
+      <div class="field"><label>Nom</label><input type="text" id="ck-name" placeholder="Ton nom"></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="ck-phone" placeholder="+229 ..."></div>
+      <div class="opt-group">
+        <span class="opt-label">Quand veux-tu récupérer ?</span>
+        <div class="time-choice">
+          <button class="selected" data-time="asap" onclick="pickTime(this,'asap')">Dès que possible</button>
+          <button data-time="later" onclick="pickTime(this,'later')">Choisir une heure</button>
+        </div>
+      </div>
+      <div class="field" id="scheduleField" style="display:none;">
+        <label>Heure de retrait</label>
+        <input type="time" id="ck-time">
+        <div class="note-box">Un léger retard n'annule pas ta commande : elle reste préparée pour toi. Utilise "Je suis en retard" dans le suivi si besoin.</div>
+      </div>
+      <div class="field"><label>Paiement</label><select id="ck-pay"><option>Paiement au retrait</option></select></div>
+    `;
+  }
+  if(state.mode === 'surplace'){
+    html = `
+      <div class="field"><label>Nom</label><input type="text" id="ck-name" placeholder="Ton nom"></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="ck-phone" placeholder="+229 ..."></div>
+      <div class="field"><label>Heure d'arrivée approximative</label><input type="time" id="ck-time"></div>
+      <div class="field"><label>Nombre de personnes</label>
+        <select id="ck-people"><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option></select>
+      </div>
+      <div class="group-note">
+        <p>On prépare ce qui peut l'être à l'avance. Une fois arrivé au resto, clique sur "Je suis arrivé" dans le suivi de commande pour prévenir l'équipe.</p>
+      </div>
+      <div class="note-box" style="margin-top:14px;">Arrivée un peu plus tard que prévu ? Pas de problème — indique-le simplement depuis le suivi, rien n'est annulé.</div>
+    `;
+  }
+
+  html += `
+    <div class="cart-summary">
+      <div class="sum-row total"><span>Total</span><span>${fmt(cartTotal())}</span></div>
+      <button class="btn btn-primary" style="width:100%; margin-top:14px;" onclick="submitOrder()">Confirmer la commande</button>
+    </div>
+  `;
+  document.getElementById('checkoutBody').innerHTML = html;
+}
+function pickTime(btn, val){
+  document.querySelectorAll('.time-choice button').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('scheduleField').style.display = val==='later' ? 'block' : 'none';
+}
+
+/* ---------- Soumission + suivi ---------- */
+function submitOrder(){
+  state.orderCounter++;
+  const scheduled = document.getElementById('ck-time');
+  state.activeOrder = {
+    num: 'SF-' + state.orderCounter,
+    mode: state.mode,
+    time: scheduled ? scheduled.value : null,
+    arrived: false,
+    lateFlagged: false,
+  };
+  state.cart = [];
+  updateCartUI();
+  closeSheet('checkoutOverlay');
+  renderTracking();
+  document.getElementById('trackOverlay').classList.add('open');
+  showToast('Commande envoyée !');
+}
+function renderTracking(){
+  const o = state.activeOrder;
+  document.getElementById('trackOrderNum').textContent = '#' + o.num;
+  document.getElementById('trackModeLabel').textContent = modeLabel(o.mode) + (o.time ? ' · programmée pour ' + o.time : ' · dès que possible');
+
+  let steps = [];
+  if(o.mode === 'livraison'){
+    steps = [
+      {label:'Commande reçue', state:'done'},
+      {label:'En préparation', state:'current'},
+      {label:'En livraison', state:''},
+      {label:'Livrée', state:''},
+    ];
+  } else if(o.mode === 'emporter'){
+    steps = [
+      {label:'Commande reçue', state:'done'},
+      {label:'En préparation', state:'current'},
+      {label:'Prête à récupérer', state:''},
+    ];
+  } else {
+    steps = [
+      {label:'Commande reçue', state:'done'},
+      {label:'En préparation', state:'current'},
+      {label:o.arrived ? 'Arrivée signalée' : 'En attente de ton arrivée', state: o.arrived ? 'done' : ''},
+      {label:'Servie', state:''},
+    ];
+  }
+  document.getElementById('trackStatusList').innerHTML = steps.map(s => `
+    <li class="${s.state}"><div><strong>${s.label}</strong></div></li>
+  `).join('');
+
+  let actionHtml = '';
+  if(o.mode === 'surplace' && !o.arrived){
+    actionHtml += `<button class="btn btn-dark" style="width:100%; margin-bottom:12px;" onclick="markArrived()">Je suis arrivé</button>`;
+  }
+  if(o.time){
+    actionHtml += `
+      <div class="late-box">
+        <p>${o.lateFlagged ? 'Merci, l\\'équipe est prévenue de ton léger retard.' : 'Un imprévu ? Si tu vas arriver plus tard que ' + o.time + ', préviens le resto en un clic — ta commande reste réservée.'}</p>
+        ${!o.lateFlagged ? `<button class="btn btn-ghost" style="border-color:rgba(250,245,236,0.4);" onclick="flagLate()">Je vais être en retard</button>` : ''}
+      </div>`;
+  }
+  document.getElementById('trackActionZone').innerHTML = actionHtml;
+}
+function markArrived(){
+  state.activeOrder.arrived = true;
+  renderTracking();
+  showToast('L\\'équipe a été prévenue de ton arrivée');
+}
+function flagLate(){
+  state.activeOrder.lateFlagged = true;
+  renderTracking();
+  showToast('Merci, on adapte la préparation');
+}
+
+/* ---------- Overlay helpers ---------- */
+function closeSheet(id){
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('keydown', e=>{ if(e.key==='Escape') o.classList.remove('open'); });
+});
+
+/* ---------- Init ---------- */
+renderCategories();
+renderDishes();
+updateCartUI();
+</script>
+</body>
+</html>

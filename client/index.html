@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>STREET FOOD — Cotonou | Goût de luxe, prix de rue</title>
+<meta name="description" content="Commandez en ligne chez STREET FOOD, Haie Vive, Cotonou. Ouvert du mardi au dimanche, 17h-6h. Livraison, à emporter ou sur place. Spaghettis, coquillettes, shawarma, boissons — dès 1000 FCFA.">
+
+<!-- Restaurant structured data (SEO local) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Street Food",
+  "servesCuisine": ["Street food", "Fast food"],
+  "priceRange": "1000 FCFA - 6000 FCFA",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Haie Vive",
+    "addressLocality": "Cotonou",
+    "addressCountry": "BJ"
+  },
+  "telephone": "+22901970303 44",
+  "openingHours": "Tu-Su 17:00-06:00"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="icon" href="assets/images/logo.jpg">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site">
+  <div class="header-inner">
+    <a href="#home" class="brand">
+      <img src="assets/images/logo.jpg" alt="Logo Street Food">
+      <span>Street Food</span>
+    </a>
+    <nav class="primary">
+      <a href="#home">Accueil</a>
+      <a href="#menu">Menu</a>
+      <a href="#commander" onclick="openModeSheet();return false;">Commander</a>
+      <a href="#histoire">À propos</a>
+      <a href="#avis">Avis</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <button class="cart-btn" onclick="openCart()">
+        Panier <span id="cartHeaderTotal">0 F</span>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="home">
+  <img class="bg" src="assets/images/storefront-night.jpg" alt="">
+  <div class="hero-content">
+    <span class="hero-tag">Haie Vive, Cotonou · Mar–Dim, 17h–6h</span>
+    <h1 class="display">Goût de luxe.<br><em>Prix de rue.</em></h1>
+    <p class="lead">Spaghettis, coquillettes, shawarma et sautés maison — à commander en quelques taps, sans compte, sans appel.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary" onclick="openModeSheet()">Commander maintenant</button>
+      <a href="#menu" class="btn btn-ghost">Voir le menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MODE DE COMMANDE ===================== -->
+<section class="section" id="commander">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Comment veux-tu ta commande ?</span>
+      <h2 class="display">Trois façons de manger Street Food</h2>
+      <p>Choisis un mode, on ne t'affichera que ce qui te concerne — pas de formulaire à rallonge.</p>
+    </div>
+    <div class="mode-grid">
+      <button class="mode-card" data-mode="livraison" onclick="selectModeAndOpen('livraison')">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>
+        <h3>Me faire livrer</h3>
+        <p>On t'apporte ta commande à l'adresse de ton choix.</p>
+      </button>
+      <button class="mode-card" data-mode="emporter" onclick="selectModeAndOpen('emporter')">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h16l-1.2 11.2a2 2 0 0 1-2 1.8H7.2a2 2 0 0 1-2-1.8L4 8z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>
+        <h3>Je viens récupérer</h3>
+        <p>Commande à l'avance, viens quand c'est prêt.</p>
+      </button>
+      <button class="mode-card" data-mode="surplace" onclick="selectModeAndOpen('surplace')">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>
+        <h3>Je mange sur place</h3>
+        <p>On prépare pendant que tu arrives. Clique "je suis arrivé" une fois là.</p>
+      </button>
+    </div>
+    <div id="orderTypeZone"><!-- injected by JS : personnelle / groupe --></div>
+  </div>
+</section>
+
+<!-- ===================== MENU ===================== -->
+<section class="section" id="menu">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Le menu</span>
+      <h2 class="display">Choisis, tape rien, ajoute</h2>
+      <p>Sélectionne une catégorie puis un plat — tout se fait au doigt, sans avoir à écrire un nom.</p>
+    </div>
+
+    <div class="cat-scroll" id="catScroll">
+      <!-- injected by JS -->
+    </div>
+
+    <div class="dish-grid" id="dishGrid">
+      <!-- injected by JS -->
+    </div>
+
+    <div class="special-strip">
+      <div class="txt">
+        <span class="kicker">Édition du samedi · dès 23h59</span>
+        <h3>Riz blanc + sauce mouton</h3>
+        <p>Les Matins Bonheurs à Street Food. XL 2500 F · XXL 3000 F. Disponible uniquement le samedi soir.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openDish('special-riz-mouton')">Ajouter</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DANS L'ASSIETTE (éditorial) ===================== -->
+<section class="section" id="assiette">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Dans l'assiette</span>
+      <h2 class="display">Les plats qu'on connaît, les goûts qu'on aime</h2>
+      <p>Spaghettis, coquillettes, shawarma, sautés de viandes — des plats inspirés de la street food et de nos habitudes de tous les jours.</p>
+    </div>
+    <div class="editorial-grid">
+      <div class="editorial-photo tall">
+        <img src="assets/images/dans-lassiette.jpg" alt="Spaghetti, wrap et sauté maison, Street Food Cotonou">
+        <span class="cap">Nos incontournables</span>
+      </div>
+      <div class="editorial-photo square">
+        <img src="assets/images/dish-plate-1.jpg" alt="Plat spaghetti crème Street Food">
+      </div>
+      <div class="editorial-photo square">
+        <img src="assets/images/dish-plate-2.jpg" alt="Plat spaghetti sauce Lifestyle Street Food">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BANDEAU PRIX / CONFIANCE ===================== -->
+<section class="section" id="prix" style="padding-top:0;">
+  <div class="wrap">
+    <div class="trust-banner">
+      <img src="assets/images/prix-1000f.jpg" alt="À partir de 1000 FCFA chez Street Food">
+      <div class="trust-copy">
+        <span class="kicker">Le prix</span>
+        <h3 class="display">À partir de 1000 F</h3>
+        <p>Parce que bien manger ne devrait pas forcément coûter cher. Le ticket d'entrée du menu reste accessible, du snack rapide au repas complet à partager.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===================== HISTOIRE / A PROPOS ===================== -->
+<section class="section" id="histoire">
+  <div class="wrap about-grid">
+    <div class="about-photo">
+      <img src="assets/images/terrace-evening.jpg" alt="Terrasse Street Food le soir, Cotonou">
+    </div>
+    <div class="about-copy">
+      <span class="kicker">C'est quoi Street Food ?</span>
+      <h2 class="display">Une cafétéria moderne, pensée pour la Haie Vive</h2>
+      <p>Manger bon, vite et sans se ruiner — entre potes, après le boulot ou après une soirée. Street Food est le nouveau QG de ceux qui aiment les bonnes vibes, avant ou après la sortie.</p>
+      <p>Ouvert du mardi au dimanche, de 17h à 6h du matin, pour te servir que tu sortes ou que tu rentres. Fermé le lundi.</p>
+      <div class="about-facts">
+        <div class="fact"><strong>1000 F</strong><span>prix d'entrée sur le menu</span></div>
+        <div class="fact"><strong>17h–6h</strong><span>mardi à dimanche</span></div>
+        <div class="fact"><strong>Haie Vive</strong><span>Cotonou, Bénin</span></div>
+        <div class="fact"><strong>Invité</strong><span>commande possible sans compte</span></div>
+        <div class="fact"><strong>Fidélité</strong><span>8 commandes = une récompense</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== QR CODE TABLE ===================== -->
+<section class="section" id="qr">
+  <div class="wrap">
+    <div class="qr-card">
+      <div class="txt">
+        <span class="hero-tag" style="margin-bottom:14px;">Sur place</span>
+        <h3 class="display">Scanne pour commander depuis ta table</h3>
+        <p>Ce QR code ouvre directement le menu Street Food sur ton téléphone. Le restaurant peut générer un code par table depuis le panneau d'administration, pour un service à table sans contact.</p>
+      </div>
+      <div class="qr-img-wrap">
+        <img src="/api/qr" alt="QR code pour commander sur le site Street Food" width="140" height="140">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AVIS ===================== -->
+<section class="section" id="avis">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Ce que pensent nos clients</span>
+      <h2 class="display">Les avis arrivent ici</h2>
+    </div>
+    <div class="reviews-shell">
+      <div class="stars">★★★★★</div>
+      <h3>Section prête, en attente des vrais avis Google</h3>
+      <p>Par souci d'honnêteté, aucun avis n'est affiché tant qu'il n'est pas récupéré directement depuis la fiche Google Maps du restaurant. Cet emplacement est prêt à afficher la note moyenne, le nombre d'avis et les commentaires réels dès qu'ils seront connectés.</p>
+      <a class="btn btn-outline" href="https://maps.app.goo.gl/EnqEnv3n4XteQ3vt9?g_st=ic" target="_blank" rel="noopener">Voir la fiche Google Maps</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== INFOS / CONTACT ===================== -->
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Nous trouver</span>
+      <h2 class="display">Infos pratiques</h2>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>ADRESSE</h4>
+        <p>Haie Vive, Cotonou, Bénin</p>
+        <a class="btn btn-outline" style="margin-top:12px; padding:10px 16px; font-size:0.82rem;" href="https://maps.app.goo.gl/EnqEnv3n4XteQ3vt9?g_st=ic" target="_blank" rel="noopener">Itinéraire</a>
+      </div>
+      <div class="info-card">
+        <h4>HORAIRES</h4>
+        <p>Mardi – Dimanche : 17h &ndash; 6h</p>
+        <p style="margin-top:8px; font-weight:600; font-size:0.8rem; opacity:0.7;">Fermé le lundi</p>
+      </div>
+      <div class="info-card">
+        <h4>CONTACT</h4>
+        <p>WhatsApp : (+229) 01 97 03 03 44</p>
+        <p style="margin-top:6px;">Instagram : @streetfoodcotonou</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA DE CLÔTURE ===================== -->
+<section class="section" style="padding-bottom:0;">
+  <div class="wrap">
+    <div class="cta-banner">
+      <img src="assets/images/cta-closing.jpg" alt="">
+      <div class="cta-banner-content">
+        <h3 class="display">Et toi, tu passes quand ?</h3>
+        <p>Street Food — goût de luxe, prix de rue.</p>
+        <button class="btn btn-primary" onclick="openModeSheet()">Commander maintenant</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <div class="footer-brand">
+        <img src="assets/images/logo.jpg" alt="">
+        <span>Street Food</span>
+      </div>
+      <p class="tag">Goût de luxe, prix de rue. La street food comme on l'aime : simple, rapide et accessible.</p>
+    </div>
+    <div class="footer-col">
+      <h5>NAVIGATION</h5>
+      <a href="#menu">Menu</a>
+      <a href="#commander" onclick="openModeSheet();return false;">Commander</a>
+      <a href="#histoire">À propos</a>
+      <a href="#avis">Avis</a>
+    </div>
+    <div class="footer-col">
+      <h5>PAIEMENT</h5>
+      <p>Paiement à la livraison ou au retrait</p>
+      <p style="opacity:0.5;">Paiement en ligne : bientôt disponible</p>
+    </div>
+    <div class="footer-col">
+      <h5>CONTACT</h5>
+      <p>Haie Vive, Cotonou</p>
+      <p>WhatsApp (+229) 01 97 03 03 44</p>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    Prototype de démonstration — données de menu réelles, avis et horaires à confirmer par le restaurant.
+  </div>
+</footer>
+
+<!-- ===================== STICKY ORDER BAR ===================== -->
+<div class="order-bar" id="orderBar" style="display:none;">
+  <div class="info">
+    <span id="orderBarMode">—</span>
+    <strong id="orderBarCount">0 article</strong>
+  </div>
+  <button onclick="openCart()">Voir le panier · <span id="orderBarTotal">0 F</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===================== OVERLAY SHEETS ===================== -->
+
+<!-- Mode selection sheet (when triggered from CTA before scrolling) -->
+<div class="overlay" id="modeOverlay" onclick="if(event.target===this) closeSheet('modeOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('modeOverlay')">✕</button>
+    <h3 class="display">Comment récupères-tu ta commande ?</h3>
+    <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:20px;">Choisis un mode pour commencer.</p>
+    <div class="mode-grid">
+      <button class="mode-card" style="background:var(--ink)" onclick="selectModeAndOpen('livraison')">
+        <h3>Me faire livrer</h3>
+        <p>Adresse + délai estimé</p>
+      </button>
+      <button class="mode-card" style="background:var(--ink)" onclick="selectModeAndOpen('emporter')">
+        <h3>Je viens récupérer</h3>
+        <p>Prêt à l'heure choisie</p>
+      </button>
+      <button class="mode-card" style="background:var(--ink)" onclick="selectModeAndOpen('surplace')">
+        <h3>Je mange sur place</h3>
+        <p>On prépare à ton arrivée</p>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Dish detail sheet -->
+<div class="overlay" id="dishOverlay" onclick="if(event.target===this) closeSheet('dishOverlay')">
+  <div class="sheet" id="dishSheetBody">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- Cart sheet -->
+<div class="overlay" id="cartOverlay" onclick="if(event.target===this) closeSheet('cartOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('cartOverlay')">✕</button>
+    <h3 class="display">Ton panier</h3>
+    <div id="cartLines"></div>
+    <div id="cartSummary"></div>
+  </div>
+</div>
+
+<!-- Checkout sheet -->
+<div class="overlay" id="checkoutOverlay" onclick="if(event.target===this) closeSheet('checkoutOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('checkoutOverlay')">✕</button>
+    <h3 class="display" id="checkoutTitle">Finaliser la commande</h3>
+    <div id="checkoutBody"></div>
+  </div>
+</div>
+
+<!-- Tracking sheet -->
+<div class="overlay" id="trackOverlay" onclick="if(event.target===this) closeSheet('trackOverlay')">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeSheet('trackOverlay')">✕</button>
+    <h3 class="display">Commande <span id="trackOrderNum">#SF-0000</span></h3>
+    <p style="color:var(--ink-soft); font-size:0.88rem; margin-top:4px;" id="trackModeLabel"></p>
+    <ul class="track-status" id="trackStatusList"></ul>
+    <div id="trackActionZone"></div>
+  </div>
+</div>
+
+<script src="js/menu-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

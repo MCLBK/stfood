@@ -1,0 +1,26 @@
+# Dépendances
+node_modules/
+*/node_modules/
+
+# Base de données locale (ne PAS versionner)
+server/db/*.db
+server/db/*.db-journal
+server/db/*.sqlite
+
+# Variables d'environnement (secrets)
+.env
+server/.env
+*.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Divers
+*.tmp
