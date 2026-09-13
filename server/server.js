@@ -9,6 +9,21 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Route de seed protégée — à usage unique
+app.get('/api/seed', async (req, res) => {
+  if (!process.env.SEED_SECRET || req.query.secret !== process.env.SEED_SECRET) {
+    return res.status(403).send('❌ Accès refusé');
+  }
+  try {
+    const { runSeed } = require('./scripts/seed');
+    runSeed();
+    res.send('✅ Seed terminé avec succès');
+  } catch (err) {
+    console.error('Erreur seed:', err);
+    res.status(500).send('❌ Erreur : ' + err.message);
+  }
+});
+
 // ---------- API ----------
 app.use('/api', require('./routes/menu'));
 app.use('/api', require('./routes/orders'));
