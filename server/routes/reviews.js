@@ -1,13 +1,13 @@
-
 const express = require('express');
 const router = express.Router();
 const db = require('../db/init');
+const { requireAdmin } = require('../middleware/admin-auth');
 
 // ============================================================
-// ROUTES PUBLIQUES (utilisées par le site client)
+// ROUTES PUBLIQUES (site client)
 // ============================================================
 
-// GET /api/reviews — Liste des avis approuvés (visibles sur le site)
+// GET /api/reviews — Liste des avis approuvés + note moyenne
 router.get('/reviews', (req, res) => {
   try {
     const reviews = db.prepare(`
@@ -17,7 +17,6 @@ router.get('/reviews', (req, res) => {
       ORDER BY created_at DESC
     `).all();
 
-    // Calcul de la note moyenne
     const stats = db.prepare(`
       SELECT
         COUNT(*) as total,
@@ -42,7 +41,6 @@ router.post('/reviews', (req, res) => {
   try {
     const { name, rating, comment, phone } = req.body;
 
-    // Validation
     if (!name || typeof name !== 'string' || name.trim().length < 2) {
       return res.status(400).json({ error: 'Nom requis (min. 2 caractères)' });
     }
@@ -80,10 +78,7 @@ router.post('/reviews', (req, res) => {
 // ROUTES ADMIN (modération — protégées)
 // ============================================================
 
-// Middleware d'authentification admin (réutilise la logique existante)
-const requireAdmin = require('../middleware/admin-auth');
-
-// GET /api/admin/reviews — Liste TOUS les avis (approuvés + en attente)
+// GET /api/admin/reviews — Tous les avis (approuvés + en attente)
 router.get('/admin/reviews', requireAdmin, (req, res) => {
   try {
     const reviews = db.prepare(`
