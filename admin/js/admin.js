@@ -1,6 +1,11 @@
 const API_BASE = '';
 let token = localStorage.getItem('sf_admin_token') || null;
-let state = { orders: [], dishes: [], categories: [], zones: [], reviews: [], reviewFilter: 'pending' };
+let state = {
+  orders: [], dishes: [], categories: [], zones: [], reviews: [],
+  reviewFilter: 'pending',
+  orderFilters: { range: 'today', since: null, until: null, search: '' },
+  orderStats: null,
+};
 
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
