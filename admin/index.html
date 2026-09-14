@@ -42,8 +42,24 @@
       <button class="tab-btn" data-tab="delivery" onclick="switchTab('delivery')">Livraison</button>
       <button class="tab-btn" data-tab="loyalty" onclick="switchTab('loyalty')">Fidélité</button>
       <button class="tab-btn" data-tab="qr" onclick="switchTab('qr')">QR codes</button>
+      <button class="tab-btn" data-tab="reviews" onclick="switchTab('reviews')">Avis <span id="pendingReviewsBadge" class="badge" style="display:none; margin-left:6px; background:var(--red); color:#fff;"></span></button>
     </nav>
   </header>
+
+      <!-- ---------- REVIEWS ---------- -->
+    <section id="tab-reviews" class="tab-panel">
+      <div class="panel-head">
+        <h2>Avis clients</h2>
+        <button class="btn-outline sm" onclick="loadReviews()">Actualiser</button>
+      </div>
+      <p class="hint">Les avis envoyés via le site sont en attente jusqu'à validation. Les avis Google sont déjà approuvés.</p>
+      <div class="tabs-filter" style="display:flex; gap:8px; margin-bottom:16px;">
+        <button class="btn-ghost-sm filter-btn active" data-filter="pending" onclick="setReviewFilter('pending')">En attente (<span id="countPending">0</span>)</button>
+        <button class="btn-ghost-sm filter-btn" data-filter="approved" onclick="setReviewFilter('approved')">Approuvés (<span id="countApproved">0</span>)</button>
+        <button class="btn-ghost-sm filter-btn" data-filter="all" onclick="setReviewFilter('all')">Tous</button>
+      </div>
+      <div id="reviewsList" class="orders-list"></div>
+    </section>
 
   <main class="admin-main">
 
