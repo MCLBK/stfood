@@ -210,16 +210,77 @@
   <div class="wrap">
     <div class="section-head">
       <span class="kicker">Ce que pensent nos clients</span>
-      <h2 class="display">Les avis arrivent ici</h2>
+      <h2 class="display">Les avis</h2>
+      <p id="reviewsSummary" style="margin-top:8px; color:var(--ink-soft); font-size:0.9rem;">
+        Chargement des avis…
+      </p>
     </div>
-    <div class="reviews-shell">
-      <div class="stars">★★★★★</div>
-      <h3>Section prête, en attente des vrais avis Google</h3>
-      <p>Par souci d'honnêteté, aucun avis n'est affiché tant qu'il n'est pas récupéré directement depuis la fiche Google Maps du restaurant. Cet emplacement est prêt à afficher la note moyenne, le nombre d'avis et les commentaires réels dès qu'ils seront connectés.</p>
-      <a class="btn btn-outline" href="https://maps.app.goo.gl/EnqEnv3n4XteQ3vt9?g_st=ic" target="_blank" rel="noopener">Voir la fiche Google Maps</a>
+
+    <!-- Liste des avis approuvés (injectée par JS) -->
+    <div class="reviews-grid" id="reviewsGrid">
+      <!-- injecté par js/reviews.js -->
+    </div>
+
+    <!-- Bouton pour ouvrir le formulaire -->
+    <div style="text-align:center; margin-top:32px;">
+      <button class="btn btn-primary" onclick="openReviewForm()">
+        Laisser un avis
+      </button>
     </div>
   </div>
 </section>
+
+<!-- ===================== MODAL FORMULAIRE AVIS ===================== -->
+<div class="overlay" id="reviewFormOverlay" onclick="if(event.target===this) closeReviewForm()">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeReviewForm()">✕</button>
+    <h3 class="display">Ton avis sur Street Food</h3>
+    <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:20px;">
+      Ton avis sera publié après validation par l'équipe. Merci !
+    </p>
+
+    <form id="reviewForm" onsubmit="submitReview(event)">
+      <label style="display:block; margin-bottom:14px;">
+        <span style="font-weight:600; font-size:0.85rem;">Ton nom *</span>
+        <input type="text" name="name" required minlength="2" maxlength="60"
+               placeholder="Ex. Ramatou S."
+               style="width:100%; padding:12px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+      </label>
+
+      <div style="margin-bottom:14px;">
+        <span style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:6px;">Ta note *</span>
+        <div class="star-picker" id="starPicker">
+          <button type="button" class="star" data-value="1" onclick="setRating(1)">★</button>
+          <button type="button" class="star" data-value="2" onclick="setRating(2)">★</button>
+          <button type="button" class="star" data-value="3" onclick="setRating(3)">★</button>
+          <button type="button" class="star" data-value="4" onclick="setRating(4)">★</button>
+          <button type="button" class="star" data-value="5" onclick="setRating(5)">★</button>
+        </div>
+        <input type="hidden" name="rating" id="ratingInput" required>
+      </div>
+
+      <label style="display:block; margin-bottom:14px;">
+        <span style="font-weight:600; font-size:0.85rem;">Ton commentaire (optionnel)</span>
+        <textarea name="comment" rows="4" maxlength="1000"
+                  placeholder="Dis-nous ce que tu as aimé (ou pas)…"
+                  style="width:100%; padding:12px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-family:inherit; resize:vertical;"></textarea>
+      </label>
+
+      <label style="display:block; margin-bottom:20px;">
+        <span style="font-weight:600; font-size:0.85rem;">Téléphone (optionnel)</span>
+        <input type="tel" name="phone" maxlength="20"
+               placeholder="+229 …"
+               style="width:100%; padding:12px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+      </label>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;">
+        Envoyer mon avis
+      </button>
+
+      <p id="reviewFormStatus" style="margin-top:14px; font-size:0.85rem; text-align:center;"></p>
+    </form>
+  </div>
+</div>
 
 <!-- ===================== INFOS / CONTACT ===================== -->
 <section class="section" id="contact">
