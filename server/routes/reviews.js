@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/init');
-const { requireAdmin } = require('../middleware/admin-auth');
+const { requireAdmin } = require('../middleware/adminAuth');
 
 // ============================================================
 // ROUTES PUBLIQUES (site client)
