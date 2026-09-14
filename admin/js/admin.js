@@ -5,15 +5,18 @@ let state = {
   reviewFilter: 'pending',
   orderFilters: { range: 'today', since: null, until: null, search: '' },
   orderStats: null,
-   autoRefresh: {
+    autoRefresh: {
     enabled: true,
     intervalId: null,
     lastUpdate: null,
     secondsAgo: 0,
     tickIntervalId: null,
     lastHash: null,
+    pausedReason: null,   // 'input' | 'selection' | 'modal' | 'scroll' | 'status-edit'
+    scrollTimeout: null,
   },
   editingOrderId: null,
+  hasOpenModal: false,
 
 };
 function authHeaders(){
@@ -67,9 +70,10 @@ function showDashboard(){
   loadZones();
   loadLoyalty();
   loadReviews();
+  setupScrollDetection();
+  setupModalDetection();
   startAutoRefresh();
 }
-
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
@@ -629,13 +633,23 @@ function startAutoRefresh(){
   updateLastUpdateLabel();
   state.autoRefresh.lastUpdate = Date.now();
 
-  state.autoRefresh.intervalId = setInterval(() => {
+    state.autoRefresh.intervalId = setInterval(() => {
     // Ne recharge que si l'onglet est actif
     const ordersTab = document.getElementById('tab-orders');
     if(!ordersTab || !ordersTab.classList.contains('active')) return;
 
     // Ne recharge que si la page est visible
     if(document.hidden) return;
+
+    // Vérifier toutes les protections
+    const check = shouldSkipRefresh();
+    if(check.skip){
+      state.autoRefresh.pausedReason = check.reason;
+      updatePauseIndicator(check.reason);
+      return;
+    }
+
+    state.autoRefresh.pausedReason = null;
 
     loadOrders().then(() => {
       state.autoRefresh.lastUpdate = Date.now();
@@ -680,10 +694,17 @@ function updateLastUpdateLabel(){
   if(!el) return;
 
   if(!state.autoRefresh.enabled){
-    el.textContent = '⏸ Auto-refresh en pause';
+    el.textContent = '⏸ Auto-refresh désactivé';
+    el.style.color = 'var(--ink-soft)';
     return;
   }
 
+  if(state.autoRefresh.pausedReason){
+    updatePauseIndicator(state.autoRefresh.pausedReason);
+    return;
+  }
+
+  el.style.color = 'var(--ink-soft)';
   const s = state.autoRefresh.secondsAgo;
   let txt;
   if(s < 5) txt = 'à l\'instant';
@@ -692,7 +713,6 @@ function updateLastUpdateLabel(){
 
   el.textContent = `🔄 Dernière mise à jour : ${txt}`;
 }
-
 // Quand la page redevient visible, on rafraîchit immédiatement
 document.addEventListener('visibilitychange', () => {
   if(!document.hidden){
@@ -705,5 +725,95 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+/* ---------- Détection des situations où il ne faut PAS refresh ---------- */
+function shouldSkipRefresh(){
+  // 1. Input/textarea/select en cours de saisie
+  const active = document.activeElement;
+  if(active){
+    const tag = active.tagName.toLowerCase();
+    if(tag === 'input' || tag === 'textarea' || tag === 'select'){
+      // Exclure les boutons de filtre (qui sont des <button>)
+      return { skip: true, reason: 'input' };
+    }
+  }
+
+  // 2. Texte sélectionné quelque part sur la page
+  const selection = window.getSelection();
+  if(selection && selection.toString().trim().length > 0){
+    return { skip: true, reason: 'selection' };
+  }
+
+  // 3. Modale ouverte
+  if(state.hasOpenModal){
+    return { skip: true, reason: 'modal' };
+  }
+
+  // 4. Scroll en cours (dernier scroll < 2 secondes)
+  if(state.autoRefresh.scrollTimeout){
+    return { skip: true, reason: 'scroll' };
+  }
+
+  // 5. Édition de statut en cours (protection déjà existante)
+  if(state.editingOrderId){
+    return { skip: true, reason: 'status-edit' };
+  }
+
+  return { skip: false, reason: null };
+}
+
+function updatePauseIndicator(reason){
+  const el = document.getElementById('lastUpdateLabel');
+  if(!el) return;
+
+  const messages = {
+    'input': '⏸ En pause — saisie en cours',
+    'selection': '⏸ En pause — texte sélectionné',
+    'modal': '⏸ En pause — fenêtre ouverte',
+    'scroll': '⏸ En pause — défilement en cours',
+    'status-edit': '⏸ En pause — modification en cours',
+  };
+
+  if(reason && messages[reason]){
+    el.textContent = messages[reason];
+    el.style.color = 'var(--ink-soft)';
+  }
+}
+
+// Détection du scroll : on désactive le refresh pendant 2 secondes après le dernier scroll
+function setupScrollDetection(){
+  const main = document.querySelector('.admin-main');
+  if(!main) return;
+
+  main.addEventListener('scroll', () => {
+    if(state.autoRefresh.scrollTimeout){
+      clearTimeout(state.autoRefresh.scrollTimeout);
+    }
+    state.autoRefresh.scrollTimeout = setTimeout(() => {
+      state.autoRefresh.scrollTimeout = null;
+    }, 2000);
+  }, { passive: true });
+}
+
+// Détection des modales : on regarde si un élément avec class "modal" ou "overlay" est visible
+function setupModalDetection(){
+  const observer = new MutationObserver(() => {
+    const modals = document.querySelectorAll('.modal, .overlay, [role="dialog"]');
+    let hasOpen = false;
+    modals.forEach(m => {
+      const style = window.getComputedStyle(m);
+      if(style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'){
+        hasOpen = true;
+      }
+    });
+    state.hasOpenModal = hasOpen;
+  });
+
+  observer.observe(document.body, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['style', 'class'],
+  });
+}
 
 checkAuthAndShow();
