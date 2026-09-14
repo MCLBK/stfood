@@ -143,19 +143,54 @@ router.delete('/admin/delivery-zones/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-/* ============================================================
-   COMMANDES — dashboard + gestion des statuts
-   ============================================================ */
 router.get('/admin/orders', (req, res) => {
-  const { status } = req.query;
-  const rows = status
-    ? db.prepare('SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC').all(status)
-    : db.prepare('SELECT * FROM orders ORDER BY created_at DESC LIMIT 200').all();
+  const { status, since, until, search, limit } = req.query;
+
+  const conditions = [];
+  const params = [];
+
+  if (status) {
+    conditions.push('status = ?');
+    params.push(status);
+  }
+  if (since) {
+    conditions.push("date(created_at) >= date(?)");
+    params.push(since);
+  }
+  if (until) {
+    conditions.push("date(created_at) <= date(?)");
+    params.push(until);
+  }
+  if (search && search.trim()) {
+    conditions.push('(customer_name LIKE ? OR customer_phone LIKE ?)');
+    const q = '%' + search.trim() + '%';
+    params.push(q, q);
+  }
+
+  const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+  const maxRows = parseInt(limit, 10) || 500;
+
+  const rows = db.prepare(
+    `SELECT * FROM orders ${where} ORDER BY created_at DESC LIMIT ?`
+  ).all(...params, maxRows);
+
   const withItems = rows.map(o => ({
     ...o,
     items: db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(o.id),
   }));
-  res.json({ orders: withItems });
+
+  const validOrders = rows.filter(o => o.status !== 'annulee');
+  const stats = {
+    count: rows.length,
+    revenue: validOrders.reduce((s, o) => s + (o.total || 0), 0),
+    avgBasket: validOrders.length ? Math.round(validOrders.reduce((s, o) => s + (o.total || 0), 0) / validOrders.length) : 0,
+    byMode: { livraison: 0, emporter: 0, surplace: 0 },
+  };
+  validOrders.forEach(o => {
+    if (stats.byMode[o.mode] !== undefined) stats.byMode[o.mode]++;
+  });
+
+  res.json({ orders: withItems, stats });
 });
 
 const VALID_STATUSES = ['recue', 'en_preparation', 'prete', 'en_livraison', 'livree', 'servie', 'annulee'];
