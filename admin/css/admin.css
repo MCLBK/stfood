@@ -104,3 +104,7 @@ input, select, textarea{font-family:inherit;}
 .qr-generator{display:flex; gap:10px; margin-bottom:20px;}
 .qr-generator input{padding:11px 13px; border-radius:9px; border:1.5px solid var(--line); font-size:0.9rem; flex:1; max-width:220px;}
 .qr-preview img{background:#fff; padding:16px; border-radius:14px; border:1px solid var(--line);}
+
+/* Filtres avis */
+.filter-btn{background:var(--line); color:var(--ink); padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer;}
+.filter-btn.active{background:var(--ink); color:#fff;}
