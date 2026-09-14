@@ -108,3 +108,21 @@ input, select, textarea{font-family:inherit;}
 /* Filtres avis */
 .filter-btn{background:var(--line); color:var(--ink); padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer;}
 .filter-btn.active{background:var(--ink); color:#fff;}
+
+/* Barre de filtres commandes */
+.filters-bar{background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:16px; display:flex; flex-direction:column; gap:10px;}
+.filters-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.filter-label{font-size:0.8rem; font-weight:700; color:var(--ink-soft); margin-right:4px;}
+.filter-btn{background:var(--line); color:var(--ink); padding:7px 13px; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer; transition:0.15s;}
+.filter-btn:hover{background:#d8d0bd;}
+.filter-btn.active{background:var(--ink); color:#fff;}
+.custom-dates label{display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:600;}
+.custom-dates input{padding:7px 10px; border-radius:8px; border:1.5px solid var(--line); font-size:0.82rem;}
+.search-input{flex:1; min-width:200px; padding:9px 12px; border-radius:8px; border:1.5px solid var(--line); font-size:0.85rem;}
+
+/* Stats de la période */
+.period-stats{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:18px;}
+@media(min-width:640px){.period-stats{grid-template-columns:repeat(6,1fr);}}
+.period-stat{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center;}
+.period-stat strong{display:block; font-size:1.15rem; color:var(--ink);}
+.period-stat span{font-size:0.7rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.03em;}
