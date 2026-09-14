@@ -24,3 +24,11 @@ Thumbs.db
 
 # Divers
 *.tmp
+
+# Fichiers SQLite temporaires (WAL + shared memory)
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Notes personnelles
+note.txt
