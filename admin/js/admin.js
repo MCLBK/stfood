@@ -5,8 +5,14 @@ let state = {
   reviewFilter: 'pending',
   orderFilters: { range: 'today', since: null, until: null, search: '' },
   orderStats: null,
+  autoRefresh: {
+    enabled: true,
+    intervalId: null,
+    lastUpdate: null,
+    secondsAgo: 0,
+    tickIntervalId: null,
+  },
 };
-
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
 }
@@ -58,12 +64,19 @@ function showDashboard(){
   loadZones();
   loadLoyalty();
   loadReviews();
+  startAutoRefresh();
 }
 
-/* ---------- Tabs ---------- */
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+
+  // Auto-refresh : actif uniquement sur l'onglet Commandes
+  if(name === 'orders'){
+    startAutoRefresh();
+  } else {
+    stopAutoRefresh();
+  }
 }
 
 /* ---------- Stats ---------- */
@@ -559,5 +572,91 @@ async function deleteReview(id){
   await fetch(`${API_BASE}/api/admin/reviews/${id}`, { method:'DELETE', headers: authHeaders() });
   loadReviews();
 }
+
+/* ---------- Auto-refresh des commandes ---------- */
+function startAutoRefresh(){
+  stopAutoRefresh();
+
+  if(!state.autoRefresh.enabled) return;
+
+  updateLastUpdateLabel();
+  state.autoRefresh.lastUpdate = Date.now();
+
+  state.autoRefresh.intervalId = setInterval(() => {
+    // Ne recharge que si l'onglet est actif
+    const ordersTab = document.getElementById('tab-orders');
+    if(!ordersTab || !ordersTab.classList.contains('active')) return;
+
+    // Ne recharge que si la page est visible
+    if(document.hidden) return;
+
+    loadOrders().then(() => {
+      state.autoRefresh.lastUpdate = Date.now();
+      state.autoRefresh.secondsAgo = 0;
+    });
+  }, 30000);
+
+  state.autoRefresh.tickIntervalId = setInterval(() => {
+    if(state.autoRefresh.lastUpdate){
+      state.autoRefresh.secondsAgo = Math.floor((Date.now() - state.autoRefresh.lastUpdate) / 1000);
+      updateLastUpdateLabel();
+    }
+  }, 1000);
+}
+
+function stopAutoRefresh(){
+  if(state.autoRefresh.intervalId){
+    clearInterval(state.autoRefresh.intervalId);
+    state.autoRefresh.intervalId = null;
+  }
+  if(state.autoRefresh.tickIntervalId){
+    clearInterval(state.autoRefresh.tickIntervalId);
+    state.autoRefresh.tickIntervalId = null;
+  }
+}
+
+function toggleAutoRefresh(){
+  state.autoRefresh.enabled = !state.autoRefresh.enabled;
+  const btn = document.getElementById('autoRefreshBtn');
+  if(btn){
+    btn.textContent = state.autoRefresh.enabled ? '⏸ Pause' : '▶ Reprendre';
+  }
+  if(state.autoRefresh.enabled){
+    startAutoRefresh();
+  } else {
+    stopAutoRefresh();
+  }
+}
+
+function updateLastUpdateLabel(){
+  const el = document.getElementById('lastUpdateLabel');
+  if(!el) return;
+
+  if(!state.autoRefresh.enabled){
+    el.textContent = '⏸ Auto-refresh en pause';
+    return;
+  }
+
+  const s = state.autoRefresh.secondsAgo;
+  let txt;
+  if(s < 5) txt = 'à l\'instant';
+  else if(s < 60) txt = `il y a ${s}s`;
+  else txt = `il y a ${Math.floor(s / 60)} min`;
+
+  el.textContent = `🔄 Dernière mise à jour : ${txt}`;
+}
+
+// Quand la page redevient visible, on rafraîchit immédiatement
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden){
+    const ordersTab = document.getElementById('tab-orders');
+    if(ordersTab && ordersTab.classList.contains('active') && state.autoRefresh.enabled){
+      loadOrders().then(() => {
+        state.autoRefresh.lastUpdate = Date.now();
+        state.autoRefresh.secondsAgo = 0;
+      });
+    }
+  }
+});
 
 checkAuthAndShow();
