@@ -1,6 +1,6 @@
 const API_BASE = '';
 let token = localStorage.getItem('sf_admin_token') || null;
-let state = { orders: [], dishes: [], categories: [], zones: [] };
+let state = { orders: [], dishes: [], categories: [], zones: [], reviews: [], reviewFilter: 'pending' };
 
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
@@ -52,6 +52,8 @@ function showDashboard(){
   loadCategories().then(loadDishes);
   loadZones();
   loadLoyalty();
+  loadReviews();
+
 }
 
 /* ---------- Tabs ---------- */
@@ -310,6 +312,108 @@ function generateQr(){
     <img src="${src}" alt="QR code">
     <p class="hint" style="margin-top:10px;">Clic droit → Enregistrer l'image pour l'imprimer.</p>
   `;
+}
+
+/* ---------- Reviews ---------- */
+async function loadReviews(){
+  try{
+    const res = await fetch(`${API_BASE}/api/admin/reviews`, { headers: authHeaders() });
+    const data = await res.json();
+    state.reviews = data.reviews || [];
+    updateReviewsBadge();
+    renderReviews();
+  }catch(err){ console.error('Erreur chargement avis:', err); }
+}
+
+function updateReviewsBadge(){
+  const pending = state.reviews.filter(r => !r.approved).length;
+  const badge = document.getElementById('pendingReviewsBadge');
+  if(badge){
+    if(pending > 0){ badge.textContent = pending; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+  const cPending = document.getElementById('countPending');
+  const cApproved = document.getElementById('countApproved');
+  if(cPending) cPending.textContent = pending;
+  if(cApproved) cApproved.textContent = state.reviews.filter(r => r.approved).length;
+}
+
+function setReviewFilter(filter){
+  state.reviewFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+  renderReviews();
+}
+
+function renderReviews(){
+  const el = document.getElementById('reviewsList');
+  if(!el) return;
+  let list = state.reviews;
+  if(state.reviewFilter === 'pending') list = list.filter(r => !r.approved);
+  if(state.reviewFilter === 'approved') list = state.reviews.filter(r => r.approved);
+
+  if(list.length === 0){
+    el.innerHTML = '<p class="hint">Aucun avis dans cette catégorie.</p>';
+    return;
+  }
+
+  el.innerHTML = list.map(r => {
+    const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+    const source = r.source === 'google'
+      ? '<span class="badge" style="background:#EFE6D4;">via Google</span>'
+      : '<span class="badge" style="background:#DCEBFB; color:#1B5A96;">via site</span>';
+    const status = r.approved
+      ? '<span class="badge" style="background:#E3F1E3; color:var(--leaf);">Approuvé</span>'
+      : '<span class="badge" style="background:#FDE7D0; color:#8C4A16;">En attente</span>';
+    const comment = r.comment ? `<div class="items">${escapeHtmlAdmin(r.comment)}</div>` : '';
+    const phone = r.phone ? `<div class="meta">📞 ${escapeHtmlAdmin(r.phone)}</div>` : '';
+    const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    return `
+      <div class="order-card">
+        <div class="top">
+          <div>
+            <span class="oid">${escapeHtmlAdmin(r.name)}</span> ${source} ${status}
+            <div class="meta">${date} ${phone}</div>
+          </div>
+          <div style="color:var(--brass); font-size:1.1rem; letter-spacing:2px;">${stars}</div>
+        </div>
+        ${comment}
+        <div class="row" style="margin-top:10px;">
+          ${!r.approved
+            ? `<button class="btn-primary sm" onclick="approveReview(${r.id})">✓ Approuver</button>`
+            : `<button class="btn-ghost-sm" onclick="rejectReview(${r.id})">↺ Retirer</button>`
+          }
+          <button class="btn-danger" onclick="deleteReview(${r.id})">Supprimer</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtmlAdmin(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function approveReview(id){
+  await fetch(`${API_BASE}/api/admin/reviews/${id}`, {
+    method:'PATCH', headers: authHeaders(), body: JSON.stringify({ approved: true })
+  });
+  loadReviews();
+}
+
+async function rejectReview(id){
+  await fetch(`${API_BASE}/api/admin/reviews/${id}`, {
+    method:'PATCH', headers: authHeaders(), body: JSON.stringify({ approved: false })
+  });
+  loadReviews();
+}
+
+async function deleteReview(id){
+  if(!confirm('Supprimer cet avis définitivement ?')) return;
+  await fetch(`${API_BASE}/api/admin/reviews/${id}`, { method:'DELETE', headers: authHeaders() });
+  loadReviews();
 }
 
 checkAuthAndShow();
