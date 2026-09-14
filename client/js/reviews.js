@@ -159,7 +159,7 @@ async function submitReview(event) {
       throw new Error(result.error || 'Erreur serveur');
     }
 
-    status.textContent = '✅ Merci ! Ton avis sera publié après validation.';
+    status.textContent = '✅ Merci ! Ton avis sera publié.';
     status.style.color = 'var(--leaf)';
     form.reset();
     currentRating = 0;
