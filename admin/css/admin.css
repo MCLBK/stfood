@@ -126,3 +126,19 @@ input, select, textarea{font-family:inherit;}
 .period-stat{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center;}
 .period-stat strong{display:block; font-size:1.15rem; color:var(--ink);}
 .period-stat span{font-size:0.7rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.03em;}
+
+/* Mise en évidence des nouvelles commandes */
+.order-card.order-new{
+  border-left: 4px solid var(--red);
+  animation: newOrderPulse 2s ease-out;
+}
+@keyframes newOrderPulse{
+  0%{ background: #FFF3E6; }
+  100%{ background: #fff; }
+}
+
+/* Select désactivé pendant l'édition */
+.status-select:disabled{
+  opacity: 0.6;
+  cursor: wait;
+}
