@@ -5,13 +5,16 @@ let state = {
   reviewFilter: 'pending',
   orderFilters: { range: 'today', since: null, until: null, search: '' },
   orderStats: null,
-  autoRefresh: {
+   autoRefresh: {
     enabled: true,
     intervalId: null,
     lastUpdate: null,
     secondsAgo: 0,
     tickIntervalId: null,
+    lastHash: null,
   },
+  editingOrderId: null,
+
 };
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
@@ -99,7 +102,9 @@ const STATUS_LABELS = {
   recue:'Reçue', en_preparation:'En préparation', prete:'Prête',
   en_livraison:'En livraison', livree:'Livrée', servie:'Servie', annulee:'Annulée'
 };
-async function loadOrders(){
+async function loadOrders(opts = {}){
+  const { force = false } = opts;
+
   const params = new URLSearchParams();
   if(state.orderFilters.since) params.set('since', state.orderFilters.since);
   if(state.orderFilters.until) params.set('until', state.orderFilters.until);
@@ -109,15 +114,46 @@ async function loadOrders(){
   const url = `${API_BASE}/api/admin/orders` + (params.toString() ? '?' + params.toString() : '');
   const res = await fetch(url, { headers: authHeaders() });
   const data = await res.json();
-  state.orders = data.orders || [];
+  const newOrders = data.orders || [];
   state.orderStats = data.stats || null;
 
-  renderOrders();
-  renderPeriodStats();
+  // Calcul d'un hash pour détecter les changements
+  const newHash = computeOrdersHash(newOrders);
+
+  // Si rien n'a changé ET qu'on n'est pas en mode forcé → on ne re-render pas
+  if(!force && newHash === state.autoRefresh.lastHash){
+    updatePeriodStatsOnly();
+    return;
+  }
+
+  // Détecter les nouvelles commandes pour les mettre en évidence
+  const prevIds = new Set(state.orders.map(o => String(o.id)));
+  const newIds = new Set(newOrders.filter(o => !prevIds.has(String(o.id))).map(o => String(o.id)));
+
+  state.orders = newOrders;
+  state.autoRefresh.lastHash = newHash;
+
+  // Si on est en train d'éditer une commande (changement de statut en cours),
+  // on ne re-render pas pour ne pas écraser l'action
+  if(state.editingOrderId){
+    updatePeriodStatsOnly();
+    return;
+  }
+
+  renderOrders(newIds);
+  updatePeriodStatsOnly();
   updateOrdersTitle();
   loadStats();
 }
 
+function computeOrdersHash(orders){
+  // Hash léger : concatène id + status + updated_at
+  return orders.map(o => `${o.id}:${o.status}:${o.updated_at || ''}`).join('|');
+}
+
+function updatePeriodStatsOnly(){
+  renderPeriodStats();
+}
 function updateOrdersTitle(){
   const el = document.getElementById('ordersTitle');
   if(!el) return;
@@ -246,10 +282,11 @@ function exportOrdersCSV(){
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
-function renderOrders(){
+function renderOrders(newIds = new Set()){
   const el = document.getElementById('ordersList');
   if(state.orders.length === 0){ el.innerHTML = '<p class="hint">Aucune commande pour l\u2019instant.</p>'; return; }
   el.innerHTML = state.orders.map(o => {
+    const isNew = newIds.has(String(o.id));
     const itemsTxt = o.items.map(i => `${i.qty}× ${i.dish_name}${i.variant_label ? ' (' + i.variant_label + ')' : ''}`).join(', ');
     const statusOptions = Object.keys(STATUS_LABELS).map(k => `<option value="${k}" ${o.status===k?'selected':''}>${STATUS_LABELS[k]}</option>`).join('');
     let feeZone = '';
@@ -262,7 +299,7 @@ function renderOrders(){
           </div>`;
     }
     return `
-      <div class="order-card">
+       <div class="order-card ${isNew ? 'order-new' : ''}" data-order-id="${o.id}">
         <div class="top">
           <div>
             <span class="oid">#${o.id}</span> · ${o.mode}${o.is_group_order ? ' · groupe' : ''}
@@ -283,10 +320,20 @@ function renderOrders(){
   }).join('');
 }
 async function updateStatus(id, status){
-  await fetch(`${API_BASE}/api/admin/orders/${id}/status`, {
-    method:'PATCH', headers: authHeaders(), body: JSON.stringify({ status })
-  });
-  loadOrders();
+  state.editingOrderId = id;
+  const select = document.querySelector(`[data-order-id="${id}"] .status-select`);
+  if(select) select.disabled = true;
+
+  try {
+    await fetch(`${API_BASE}/api/admin/orders/${id}/status`, {
+      method:'PATCH', headers: authHeaders(), body: JSON.stringify({ status })
+    });
+    await loadOrders({ force: true });
+  } finally {
+    state.editingOrderId = null;
+    const selectAfter = document.querySelector(`[data-order-id="${id}"] .status-select`);
+    if(selectAfter) selectAfter.disabled = false;
+  }
 }
 async function confirmFee(id){
   const input = document.getElementById(`fee-${id}`);
