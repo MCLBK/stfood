@@ -64,14 +64,41 @@
   <main class="admin-main">
 
     <!-- ---------- ORDERS ---------- -->
-    <section id="tab-orders" class="tab-panel active">
-      <div class="stats-row" id="statsRow"></div>
-      <div class="panel-head">
-        <h2>Commandes</h2>
-        <button class="btn-outline sm" onclick="loadOrders()">Actualiser</button>
-      </div>
-      <div id="ordersList" class="orders-list"></div>
-    </section>
+<section id="tab-orders" class="tab-panel active">
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filters-bar">
+    <div class="filters-row">
+      <span class="filter-label">Période :</span>
+      <button class="filter-btn active" data-range="today" onclick="setDateRange('today')">Aujourd'hui</button>
+      <button class="filter-btn" data-range="7d" onclick="setDateRange('7d')">7 jours</button>
+      <button class="filter-btn" data-range="30d" onclick="setDateRange('30d')">30 jours</button>
+      <button class="filter-btn" data-range="month" onclick="setDateRange('month')">Ce mois</button>
+      <button class="filter-btn" data-range="all" onclick="setDateRange('all')">Tout</button>
+      <button class="filter-btn" data-range="custom" onclick="setDateRange('custom')">Personnalisé</button>
+    </div>
+
+    <div class="filters-row custom-dates" id="customDates" style="display:none;">
+      <label>Du <input type="date" id="filterSince"></label>
+      <label>Au <input type="date" id="filterUntil"></label>
+      <button class="btn-primary sm" onclick="applyCustomDates()">Appliquer</button>
+    </div>
+
+    <div class="filters-row">
+      <input type="text" id="searchOrders" placeholder="Rechercher par nom ou téléphone…" class="search-input" oninput="onSearchInput()">
+      <button class="btn-outline sm" onclick="clearFilters()">Réinitialiser</button>
+      <button class="btn-primary sm" onclick="exportOrdersCSV()">📥 Exporter CSV</button>
+    </div>
+  </div>
+
+  <div class="period-stats" id="periodStats"></div>
+
+  <div class="panel-head">
+    <h2 id="ordersTitle">Commandes</h2>
+    <button class="btn-outline sm" onclick="loadOrders()">Actualiser</button>
+  </div>
+  <div id="ordersList" class="orders-list"></div>
+</section>
 
     <!-- ---------- MENU ---------- -->
     <section id="tab-menu" class="tab-panel">
