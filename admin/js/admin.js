@@ -52,13 +52,12 @@ async function checkAuthAndShow(){
 function showDashboard(){
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  setDateRange('today');
   loadStats();
-  loadOrders();
   loadCategories().then(loadDishes);
   loadZones();
   loadLoyalty();
   loadReviews();
-
 }
 
 /* ---------- Tabs ---------- */
@@ -88,11 +87,151 @@ const STATUS_LABELS = {
   en_livraison:'En livraison', livree:'Livrée', servie:'Servie', annulee:'Annulée'
 };
 async function loadOrders(){
-  const res = await fetch(`${API_BASE}/api/admin/orders`, { headers: authHeaders() });
+  const params = new URLSearchParams();
+  if(state.orderFilters.since) params.set('since', state.orderFilters.since);
+  if(state.orderFilters.until) params.set('until', state.orderFilters.until);
+  if(state.orderFilters.search) params.set('search', state.orderFilters.search);
+  params.set('limit', '1000');
+
+  const url = `${API_BASE}/api/admin/orders` + (params.toString() ? '?' + params.toString() : '');
+  const res = await fetch(url, { headers: authHeaders() });
   const data = await res.json();
-  state.orders = data.orders;
+  state.orders = data.orders || [];
+  state.orderStats = data.stats || null;
+
   renderOrders();
+  renderPeriodStats();
+  updateOrdersTitle();
   loadStats();
+}
+
+function updateOrdersTitle(){
+  const el = document.getElementById('ordersTitle');
+  if(!el) return;
+  el.textContent = `Commandes (${state.orders.length})`;
+}
+
+function renderPeriodStats(){
+  const el = document.getElementById('periodStats');
+  if(!el || !state.orderStats) return;
+  const s = state.orderStats;
+  el.innerHTML = `
+    <div class="period-stat"><strong>${s.count}</strong><span>commandes</span></div>
+    <div class="period-stat"><strong>${fmt(s.revenue)}</strong><span>chiffre d'affaires</span></div>
+    <div class="period-stat"><strong>${fmt(s.avgBasket)}</strong><span>panier moyen</span></div>
+    <div class="period-stat"><strong>${s.byMode.livraison}</strong><span>livraisons</span></div>
+    <div class="period-stat"><strong>${s.byMode.emporter}</strong><span>à emporter</span></div>
+    <div class="period-stat"><strong>${s.byMode.surplace}</strong><span>sur place</span></div>
+  `;
+}
+
+function setDateRange(range){
+  state.orderFilters.range = range;
+
+  document.querySelectorAll('[data-range]').forEach(b => {
+    b.classList.toggle('active', b.dataset.range === range);
+  });
+
+  const custom = document.getElementById('customDates');
+  if(custom) custom.style.display = range === 'custom' ? 'flex' : 'none';
+
+  const today = new Date();
+  const fmtDate = d => d.toISOString().slice(0, 10);
+
+  if(range === 'today'){
+    state.orderFilters.since = fmtDate(today);
+    state.orderFilters.until = fmtDate(today);
+  } else if(range === '7d'){
+    const past = new Date(today); past.setDate(past.getDate() - 6);
+    state.orderFilters.since = fmtDate(past);
+    state.orderFilters.until = fmtDate(today);
+  } else if(range === '30d'){
+    const past = new Date(today); past.setDate(past.getDate() - 29);
+    state.orderFilters.since = fmtDate(past);
+    state.orderFilters.until = fmtDate(today);
+  } else if(range === 'month'){
+    const first = new Date(today.getFullYear(), today.getMonth(), 1);
+    state.orderFilters.since = fmtDate(first);
+    state.orderFilters.until = fmtDate(today);
+  } else if(range === 'all'){
+    state.orderFilters.since = null;
+    state.orderFilters.until = null;
+  } else if(range === 'custom'){
+    return;
+  }
+
+  loadOrders();
+}
+
+function applyCustomDates(){
+  const since = document.getElementById('filterSince').value;
+  const until = document.getElementById('filterUntil').value;
+  if(!since || !until){
+    alert('Indique une date de début et de fin.');
+    return;
+  }
+  state.orderFilters.since = since;
+  state.orderFilters.until = until;
+  loadOrders();
+}
+
+let searchTimer = null;
+function onSearchInput(){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.orderFilters.search = document.getElementById('searchOrders').value.trim();
+    loadOrders();
+  }, 400);
+}
+
+function clearFilters(){
+  state.orderFilters = { range: 'today', since: null, until: null, search: '' };
+  document.getElementById('searchOrders').value = '';
+  setDateRange('today');
+}
+
+function exportOrdersCSV(){
+  if(state.orders.length === 0){
+    alert('Aucune commande à exporter sur cette période.');
+    return;
+  }
+
+  const headers = ['N°', 'Date', 'Heure', 'Client', 'Téléphone', 'Mode', 'Statut', 'Sous-total', 'Frais livraison', 'Total', 'Articles'];
+  const rows = state.orders.map(o => {
+    const d = new Date(o.created_at);
+    const date = d.toLocaleDateString('fr-FR');
+    const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const items = o.items.map(i => `${i.qty}x ${i.dish_name}`).join(' | ');
+    return [
+      o.id,
+      date,
+      time,
+      o.customer_name || '',
+      o.customer_phone || '',
+      o.mode || '',
+      o.status || '',
+      o.items_subtotal || 0,
+      o.delivery_fee_final || 0,
+      o.total || 0,
+      items,
+    ];
+  });
+
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  const period = state.orderFilters.range || 'export';
+  const dateStr = new Date().toISOString().slice(0, 10);
+  link.href = url;
+  link.download = `streetfood-commandes-${period}-${dateStr}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 function renderOrders(){
   const el = document.getElementById('ordersList');
