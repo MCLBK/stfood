@@ -40,6 +40,8 @@ app.get('/api/health', (req, res) => res.json({ ok: true, service: 'streetfood-s
 app.use(express.static(path.join(__dirname, '..', 'client')));
 // Panneau d'administration sur /admin
 app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
+// Mode cuisine sur /cuisine
+app.use('/cuisine', express.static(path.join(__dirname, '..', 'cuisine')));
 
 // Fallback SPA pour le client (routes front sans extension -> index.html)
 app.get(/^\/(?!api|admin).*/, (req, res, next) => {
