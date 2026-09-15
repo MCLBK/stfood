@@ -52,6 +52,9 @@
       <a href="#contact">Contact</a>
     </nav>
     <div class="header-actions">
+      <button class="track-btn" id="trackBtn" onclick="reopenTracking()" style="display:none;" title="Suivre ma commande">
+        📦 <span class="track-btn-label">Ma commande</span>
+      </button>
       <button class="cart-btn" onclick="openCart()">
         Panier <span id="cartHeaderTotal">0 F</span>
         <span class="cart-count" id="cartCount">0</span>
@@ -341,6 +344,7 @@
       <a href="#commander" onclick="openModeSheet();return false;">Commander</a>
       <a href="#histoire">À propos</a>
       <a href="#avis">Avis</a>
+      <a href="#" onclick="reopenTracking();return false;">📦 Suivre ma commande</a>
       <a href="#" onclick="openMyStatusModal();return false;">🎁 Mon statut fidélité</a>
     </div>
     <div class="footer-col">
