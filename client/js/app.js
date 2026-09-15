@@ -648,6 +648,7 @@ async function submitOrder(){
   renderTracking();
   document.getElementById('trackOverlay').classList.add('open');
   showToast('Commande envoyée !');
+  localStorage.setItem('sf_last_phone', phone);   // ← NOUVELLE LIGNE
   loadLoyalty(phone);
   startPolling(order.id);
 }
@@ -741,14 +742,7 @@ function renderTracking(){
       </div>`;
   }
   if(state.loyalty && state.loyalty.ordersCount > 0){
-    const l = state.loyalty;
-    actionHtml += `
-      <div class="loyalty-box">
-        ${l.rewardEligible
-          ? `<strong>Bravo — récompense débloquée !</strong><span>C'est ta ${l.ordersCount}ᵉ commande chez Street Food. Signale-le sur place ou en livraison.</span>`
-          : `<strong>C'est ta ${l.ordersCount}${l.ordersCount>1?'ᵉ':'ʳᵉ'} commande</strong><span>Encore ${l.remainingForReward} commande${l.remainingForReward>1?'s':''} avant une récompense (tous les ${l.threshold} commandes).</span>`
-        }
-      </div>`;
+    actionHtml += renderLoyaltyBlock(state.loyalty);
   }
   document.getElementById('trackActionZone').innerHTML = actionHtml;
 }
@@ -786,4 +780,108 @@ async function init(){
   renderDishes();
   updateCartUI();
 }
+
+/* ============================================================
+   FIDÉLITÉ — Affichage du palier et de la progression
+   ============================================================ */
+function renderLoyaltyBlock(l){
+  const tier = l.tier;
+  const next = l.nextTier;
+  const tierLabel = tier ? `${tier.emoji} ${tier.label}` : '🥉 Nouveau';
+  const tierColor = tier ? tier.color : '#A9793D';
+
+  let progressionHtml = '';
+  if(next){
+    progressionHtml = `
+      <div class="loyalty-progress">
+        <div class="loyalty-progress-label">
+          <span>Prochain palier : ${next.emoji} ${next.label}</span>
+          <span>${l.ordersToNextTier} commande${l.ordersToNextTier > 1 ? 's' : ''}</span>
+        </div>
+        <div class="loyalty-progress-bar">
+          <div class="loyalty-progress-fill" style="width:${l.tierProgressPercent}%; background:${next.color};"></div>
+        </div>
+      </div>
+    `;
+  } else if(tier){
+    progressionHtml = `<p style="font-size:0.82rem; color:var(--ink-soft); margin:10px 0 0;">🎉 Tu es au palier maximum. Profite bien !</p>`;
+  }
+
+  const rewardHtml = l.rewardEligible
+    ? `<div class="loyalty-reward unlocked">🎁 <strong>Récompense débloquée !</strong> C'est ta ${l.ordersCount}ᵉ commande — signale-le à l'équipe.</div>`
+    : `<div class="loyalty-reward">🎁 Plus que <strong>${l.remainingForReward}</strong> commande${l.remainingForReward > 1 ? 's' : ''} avant une récompense (tous les ${l.threshold}).</div>`;
+
+  const perksHtml = tier && tier.perks
+    ? `<ul class="loyalty-perks">${tier.perks.map(p => `<li>${p}</li>`).join('')}</ul>`
+    : '';
+
+  return `
+    <div class="loyalty-box">
+      <div class="loyalty-header">
+        <span class="loyalty-badge" style="background:${tierColor};">${tierLabel}</span>
+        <span class="loyalty-count">${l.ordersCount} commande${l.ordersCount > 1 ? 's' : ''} au total</span>
+      </div>
+      ${perksHtml}
+      ${progressionHtml}
+      ${rewardHtml}
+    </div>
+  `;
+}
+
+/* ============================================================
+   "MON STATUT" — Le client peut vérifier son palier à tout moment
+   ============================================================ */
+function openMyStatusModal(){
+  // Pré-remplir avec le numéro stocké
+  const savedPhone = localStorage.getItem('sf_last_phone') || '';
+  document.getElementById('myStatusPhone').value = savedPhone;
+
+  // Si on a déjà le numéro, charger directement
+  if(savedPhone){
+    loadMyStatus(savedPhone);
+  } else {
+    document.getElementById('myStatusResult').innerHTML = '';
+  }
+
+  document.getElementById('myStatusOverlay').classList.add('open');
+}
+
+function closeMyStatusModal(){
+  document.getElementById('myStatusOverlay').classList.remove('open');
+}
+
+async function submitMyStatus(){
+  const phone = document.getElementById('myStatusPhone').value.trim();
+  if(!phone){
+    document.getElementById('myStatusResult').innerHTML = '<p style="color:var(--red); font-size:0.85rem;">Indique ton numéro de téléphone.</p>';
+    return;
+  }
+  localStorage.setItem('sf_last_phone', phone);
+  await loadMyStatus(phone);
+}
+
+async function loadMyStatus(phone){
+  const result = document.getElementById('myStatusResult');
+  result.innerHTML = '<p style="color:var(--ink-soft); font-size:0.85rem;">Chargement…</p>';
+
+  try{
+    const res = await fetch(`${API_BASE}/api/loyalty/${encodeURIComponent(phone)}`);
+    const data = await res.json();
+
+    if(!data || data.ordersCount === 0){
+      result.innerHTML = `
+        <p style="font-size:0.9rem; color:var(--ink-soft); text-align:center; padding:20px 0;">
+          Aucune commande trouvée pour ce numéro.<br>
+          <span style="font-size:0.82rem;">Passe ta première commande pour rejoindre le club !</span>
+        </p>
+      `;
+      return;
+    }
+
+    result.innerHTML = renderLoyaltyBlock(data);
+  } catch(err){
+    result.innerHTML = '<p style="color:var(--red); font-size:0.85rem;">Impossible de charger ton statut pour l\'instant.</p>';
+  }
+}
+
 init();
