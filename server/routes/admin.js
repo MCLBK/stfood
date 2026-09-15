@@ -334,8 +334,79 @@ router.patch('/admin/orders/:id/delivery-fee', (req, res) => {
    FIDÉLITÉ — vue d'ensemble
    ============================================================ */
 router.get('/admin/loyalty', (req, res) => {
-  const rows = db.prepare('SELECT * FROM loyalty ORDER BY orders_count DESC LIMIT 100').all();
-  res.json({ customers: rows });
+  const { tier, search, limit } = req.query;
+  const maxRows = parseInt(limit, 10) || 500;
+
+  // Récupérer tous les clients fidèles
+  let rows = db.prepare('SELECT * FROM loyalty ORDER BY orders_count DESC LIMIT ?').all(maxRows);
+
+  // Enrichir avec le nom du client (dernière commande connue) et la date de dernière commande
+  rows = rows.map(r => {
+    const lastOrder = db.prepare(`
+      SELECT customer_name, MAX(created_at) AS last_order_at
+      FROM orders
+      WHERE customer_phone = ?
+      GROUP BY customer_phone
+    `).get(r.phone);
+    return {
+      ...r,
+      customer_name: lastOrder ? lastOrder.customer_name : null,
+      last_order_at: lastOrder ? lastOrder.last_order_at : null,
+    };
+  });
+
+  // Calculer le palier pour chaque client
+  const TIERS = [
+    { id: 'bronze', label: 'Bronze', emoji: '🥉', minOrders: 1, maxOrders: 4, color: '#A9793D' },
+    { id: 'argent', label: 'Argent', emoji: '🥈', minOrders: 5, maxOrders: 7, color: '#8A8A8A' },
+    { id: 'or', label: 'Or', emoji: '🥇', minOrders: 8, maxOrders: null, color: '#D4AF37' },
+  ];
+  function getTier(count) {
+    if (count <= 0) return null;
+    for (const t of TIERS) {
+      if (count >= t.minOrders && (t.maxOrders === null || count <= t.maxOrders)) return t;
+    }
+    return TIERS[TIERS.length - 1];
+  }
+
+  rows = rows.map(r => {
+    const t = getTier(r.orders_count);
+    return {
+      ...r,
+      tier_id: t ? t.id : null,
+      tier_label: t ? t.label : null,
+      tier_emoji: t ? t.emoji : null,
+      tier_color: t ? t.color : null,
+    };
+  });
+
+  // Filtre par palier
+  if (tier && tier !== 'all') {
+    rows = rows.filter(r => r.tier_id === tier);
+  }
+
+  // Filtre par recherche (nom ou téléphone)
+  if (search && search.trim()) {
+    const q = search.trim().toLowerCase();
+    rows = rows.filter(r =>
+      (r.phone && r.phone.toLowerCase().includes(q)) ||
+      (r.customer_name && r.customer_name.toLowerCase().includes(q))
+    );
+  }
+
+  // Compteurs par palier (sur la totalité, pas sur le filtre)
+  const allRows = db.prepare('SELECT * FROM loyalty').all();
+  const counts = { bronze: 0, argent: 0, or: 0 };
+  allRows.forEach(r => {
+    const t = getTier(r.orders_count);
+    if (t && counts[t.id] !== undefined) counts[t.id]++;
+  });
+
+  res.json({
+    customers: rows,
+    counts,
+    total: allRows.length,
+  });
 });
 
 /* ============================================================
