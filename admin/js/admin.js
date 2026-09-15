@@ -25,6 +25,8 @@ let state = {
   },
    addDishContext: null,
    analyticsRange: 'today',
+   loyaltyFilters: { tier: 'all', search: '' },
+   loyaltyData: [],
 };
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
@@ -95,6 +97,11 @@ function switchTab(name){
   // Charger les analytics quand on ouvre l'onglet
   if(name === 'analytics'){
     loadAnalytics();
+  }
+
+  // Recharger la fidélité quand on ouvre l'onglet
+  if(name === 'loyalty'){
+    loadLoyalty();
   }
 }
 
@@ -516,12 +523,122 @@ async function deleteZone(id){
 
 /* ---------- Loyalty ---------- */
 async function loadLoyalty(){
-  const res = await fetch(`${API_BASE}/api/admin/loyalty`, { headers: authHeaders() });
-  const data = await res.json();
+  const params = new URLSearchParams();
+  if(state.loyaltyFilters.tier && state.loyaltyFilters.tier !== 'all'){
+    params.set('tier', state.loyaltyFilters.tier);
+  }
+  if(state.loyaltyFilters.search){
+    params.set('search', state.loyaltyFilters.search);
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/loyalty?` + params.toString(), { headers: authHeaders() });
+    const data = await res.json();
+    state.loyaltyData = data.customers || [];
+
+    // Mettre à jour les compteurs
+    document.getElementById('countBronze').textContent = data.counts.bronze;
+    document.getElementById('countArgent').textContent = data.counts.argent;
+    document.getElementById('countOr').textContent = data.counts.or;
+    document.getElementById('countAll').textContent = data.total;
+
+    renderLoyalty();
+  } catch(err) {
+    console.error('Erreur chargement fidélité:', err);
+  }
+}
+
+function renderLoyalty(){
   const el = document.getElementById('loyaltyList');
-  el.innerHTML = data.customers.map(c => `
-    <div class="row"><span>${c.phone}</span><strong>${c.orders_count} commande${c.orders_count>1?'s':''}</strong></div>
-  `).join('') || '<div class="row">Aucun client fidèle pour l\u2019instant.</div>';
+  if(!el) return;
+
+  if(state.loyaltyData.length === 0){
+    el.innerHTML = '<div class="row">Aucun client fidèle pour l\'instant.</div>';
+    return;
+  }
+
+  el.innerHTML = state.loyaltyData.map(c => {
+    const tierBadge = c.tier_id
+      ? `<span class="loyalty-tier-badge" style="background:${c.tier_color};">${c.tier_emoji} ${c.tier_label}</span>`
+      : '<span style="color:var(--ink-soft); font-size:0.8rem;">—</span>';
+    const name = c.customer_name ? `<strong>${escapeHtmlAdmin(c.customer_name)}</strong><br>` : '';
+    const lastOrder = c.last_order_at
+      ? new Date(c.last_order_at.replace(' ', 'T') + 'Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '—';
+
+    return `
+      <div class="row loyalty-row">
+        <div class="loyalty-info">
+          ${name}
+          <span class="loyalty-phone">${c.phone}</span>
+        </div>
+        <div class="loyalty-center">
+          ${tierBadge}
+        </div>
+        <div class="loyalty-right">
+          <strong>${c.orders_count} commande${c.orders_count > 1 ? 's' : ''}</strong>
+          <span class="loyalty-date">Dernière : ${lastOrder}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setLoyaltyFilter(tier){
+  state.loyaltyFilters.tier = tier;
+  document.querySelectorAll('[data-loyalty-tier]').forEach(b => {
+    b.classList.toggle('active', b.dataset.loyaltyTier === tier);
+  });
+  loadLoyalty();
+}
+
+let loyaltySearchTimer = null;
+function onLoyaltySearchInput(){
+  clearTimeout(loyaltySearchTimer);
+  loyaltySearchTimer = setTimeout(() => {
+    state.loyaltyFilters.search = document.getElementById('loyaltySearch').value.trim();
+    loadLoyalty();
+  }, 400);
+}
+
+function clearLoyaltyFilters(){
+  state.loyaltyFilters = { tier: 'all', search: '' };
+  document.getElementById('loyaltySearch').value = '';
+  document.querySelectorAll('[data-loyalty-tier]').forEach(b => {
+    b.classList.toggle('active', b.dataset.loyaltyTier === 'all');
+  });
+  loadLoyalty();
+}
+
+function exportLoyaltyCSV(){
+  if(state.loyaltyData.length === 0){
+    alert('Aucun client à exporter.');
+    return;
+  }
+
+  const headers = ['Téléphone', 'Nom', 'Palier', 'Commandes', 'Dernière commande'];
+  const rows = state.loyaltyData.map(c => [
+    c.phone,
+    c.customer_name || '',
+    c.tier_label || '—',
+    c.orders_count || 0,
+    c.last_order_at ? new Date(c.last_order_at).toLocaleDateString('fr-FR') : '—',
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  const dateStr = new Date().toISOString().slice(0, 10);
+  link.href = url;
+  link.download = `streetfood-fidelite-${dateStr}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 /* ---------- QR ---------- */
