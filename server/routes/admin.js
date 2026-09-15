@@ -193,6 +193,115 @@ router.get('/admin/orders', (req, res) => {
   res.json({ orders: withItems, stats });
 });
 
+// Créer une commande manuellement (par le personnel : téléphone, accueil, serveur)
+router.post('/admin/orders', (req, res) => {
+  const {
+    mode, customer_name, customer_phone, delivery_address, delivery_zone_id, delivery_notes,
+    people_count, is_group_order, requested_time, is_scheduled, items, status,
+  } = req.body || {};
+
+  if (!mode || !['livraison', 'emporter', 'surplace'].includes(mode)) {
+    return res.status(400).json({ error: 'Mode invalide.' });
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Ajoutez au moins un plat.' });
+  }
+
+  // Calcul du sous-total et du total
+  let subtotal = 0;
+  const validItems = [];
+  for (const it of items) {
+    if (!it.dish_id || !it.dish_name || !it.unit_price || !it.qty) continue;
+    const qty = parseInt(it.qty, 10);
+    const price = parseInt(it.unit_price, 10);
+    if (qty <= 0 || price < 0) continue;
+    subtotal += price * qty;
+    validItems.push({
+      dish_id: it.dish_id,
+      dish_name: it.dish_name,
+      variant_label: it.variant_label || '',
+      unit_price: price,
+      qty,
+    });
+  }
+  if (validItems.length === 0) {
+    return res.status(400).json({ error: 'Aucun plat valide.' });
+  }
+
+  // Frais de livraison (si livraison et zone renseignée)
+  let deliveryFee = 0;
+  let deliveryFeeConfirmed = 0;
+  if (mode === 'livraison' && delivery_zone_id) {
+    const zone = db.prepare('SELECT * FROM delivery_zones WHERE id = ?').get(delivery_zone_id);
+    if (zone) {
+      deliveryFee = zone.fee;
+      // Si la zone a un frais > 0, on considère que c'est confirmé
+      deliveryFeeConfirmed = zone.fee > 0 ? 1 : 0;
+    }
+  }
+
+  const total = subtotal + deliveryFee;
+  const orderId = 'SF-' + Date.now().toString().slice(-6);
+  const finalStatus = status || 'recue';
+
+  try {
+    const insertOrder = db.prepare(`
+      INSERT INTO orders (
+        id, mode, status, customer_name, customer_phone,
+        delivery_address, delivery_zone_id, delivery_fee_estimate, delivery_fee_final, delivery_fee_confirmed, delivery_notes,
+        people_count, is_group_order, requested_time, is_scheduled,
+        items_subtotal, total
+      ) VALUES (
+        @id, @mode, @status, @customer_name, @customer_phone,
+        @delivery_address, @delivery_zone_id, @delivery_fee_estimate, @delivery_fee_final, @delivery_fee_confirmed, @delivery_notes,
+        @people_count, @is_group_order, @requested_time, @is_scheduled,
+        @items_subtotal, @total
+      )
+    `);
+
+    const insertItem = db.prepare(`
+      INSERT INTO order_items (order_id, dish_id, dish_name, variant_label, unit_price, qty)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    const tx = db.transaction(() => {
+      insertOrder.run({
+        id: orderId,
+        mode,
+        status: finalStatus,
+        customer_name: customer_name || null,
+        customer_phone: customer_phone || null,
+        delivery_address: delivery_address || null,
+        delivery_zone_id: delivery_zone_id || null,
+        delivery_fee_estimate: deliveryFee || null,
+        delivery_fee_final: deliveryFeeConfirmed ? deliveryFee : null,
+        delivery_fee_confirmed: deliveryFeeConfirmed,
+        delivery_notes: delivery_notes || null,
+        people_count: people_count || null,
+        is_group_order: is_group_order ? 1 : 0,
+        requested_time: requested_time || null,
+        is_scheduled: is_scheduled ? 1 : 0,
+        items_subtotal: subtotal,
+        total,
+      });
+
+      for (const it of validItems) {
+        insertItem.run(orderId, it.dish_id, it.dish_name, it.variant_label, it.unit_price, it.qty);
+      }
+    });
+
+    tx();
+
+    // Notification (comme pour les commandes en ligne)
+    try { notify(orderId, 'created_admin'); } catch (e) { /* silencieux */ }
+
+    res.status(201).json({ ok: true, orderId });
+  } catch (err) {
+    console.error('Erreur création commande admin:', err);
+    res.status(500).json({ error: 'Erreur serveur lors de la création.' });
+  }
+});
+
 const VALID_STATUSES = ['recue', 'en_preparation', 'prete', 'en_livraison', 'livree', 'servie', 'annulee'];
 
 router.patch('/admin/orders/:id/status', (req, res) => {
