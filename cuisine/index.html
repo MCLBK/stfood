@@ -1,1 +1,60 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Street Food — Cuisine</title>
+<link rel="icon" href="../assets/images/logo.jpg">
+<link rel="stylesheet" href="cuisine.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen" class="login-screen">
+  <form id="loginForm" class="login-card">
+    <img src="../assets/images/logo.jpg" alt="" class="login-logo">
+    <h1>Street Food — Cuisine</h1>
+    <p class="sub">Mode cuisine · écran dédié</p>
+    <div class="field">
+      <label>Mot de passe cuisine</label>
+      <input type="password" id="cuisinePassword" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn-primary">Entrer</button>
+    <p class="error" id="loginError"></p>
+  </form>
+</div>
+
+<!-- ===================== CUISINE ===================== -->
+<div id="cuisineScreen" class="cuisine-screen" style="display:none;">
+  <header class="cuisine-header">
+    <div class="header-left">
+      <img src="../assets/images/logo.jpg" alt="">
+      <h1>Cuisine</h1>
+    </div>
+    <div class="header-right">
+      <span id="lastUpdate" class="last-update">—</span>
+      <button class="btn-sound" id="soundBtn" onclick="toggleSound()" title="Activer/désactiver le son">🔊</button>
+      <button class="btn-quit" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat"><strong id="countRecue">0</strong><span>Nouvelles</span></div>
+    <div class="stat"><strong id="countPrep">0</strong><span>En préparation</span></div>
+    <div class="stat"><strong id="countTotal">0</strong><span>Total en cours</span></div>
+  </div>
+
+  <main class="orders-grid" id="ordersGrid">
+    <!-- injecté par JS -->
+  </main>
+
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <p>🎉 Aucune commande en cours</p>
+    <span>Toutes les commandes sont traitées</span>
+  </div>
+</div>
+
+<script src="cuisine.js"></script>
+</body>
+</html>
