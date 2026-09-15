@@ -554,4 +554,64 @@ router.get('/admin/analytics', (req, res) => {
   });
 });
 
+/* ============================================================
+   MODE CUISINE — accès simplifié par mot de passe
+   Permet au cuisinier de voir les commandes en cours
+   et de les marquer comme prêtes.
+   ============================================================ */
+
+const CUISINE_PASSWORD = process.env.CUISINE_PASSWORD || 'streetfood-cuisine';
+
+function requireCuisine(req, res, next) {
+  const password = req.headers['x-cuisine-password'];
+  if (password !== CUISINE_PASSWORD) {
+    return res.status(401).json({ error: 'Mot de passe cuisine invalide.' });
+  }
+  next();
+}
+
+// Vérifier le mot de passe
+router.post('/cuisine/login', (req, res) => {
+  const { password } = req.body || {};
+  if (password === CUISINE_PASSWORD) {
+    return res.json({ ok: true });
+  }
+  res.status(401).json({ error: 'Mot de passe invalide.' });
+});
+
+// Liste des commandes actives (Reçue + En préparation)
+router.get('/cuisine/orders', requireCuisine, (req, res) => {
+  const rows = db.prepare(`
+    SELECT * FROM orders
+    WHERE status IN ('recue', 'en_preparation')
+    ORDER BY created_at ASC
+  `).all();
+
+  const withItems = rows.map(o => ({
+    ...o,
+    items: db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(o.id),
+    seconds_ago: Math.floor((Date.now() - new Date(o.created_at.replace(' ', 'T') + 'Z').getTime()) / 1000),
+  }));
+
+  res.json({ orders: withItems });
+});
+
+// Marquer une commande comme prête
+router.patch('/cuisine/orders/:id/ready', requireCuisine, (req, res) => {
+  const result = db.prepare("UPDATE orders SET status = 'prete', updated_at = datetime('now') WHERE id = ?")
+    .run(req.params.id);
+  if (result.changes === 0) return res.status(404).json({ error: 'Commande introuvable.' });
+  try { notify(req.params.id, 'status:prete'); } catch (e) { /* silencieux */ }
+  res.json({ ok: true });
+});
+
+// Marquer une commande comme en préparation (depuis 'recue')
+router.patch('/cuisine/orders/:id/preparing', requireCuisine, (req, res) => {
+  const result = db.prepare("UPDATE orders SET status = 'en_preparation', updated_at = datetime('now') WHERE id = ? AND status = 'recue'")
+    .run(req.params.id);
+  if (result.changes === 0) return res.status(404).json({ error: 'Commande introuvable ou déjà en préparation.' });
+  try { notify(req.params.id, 'status:en_preparation'); } catch (e) { /* silencieux */ }
+  res.json({ ok: true });
+});
+
 module.exports = router;
