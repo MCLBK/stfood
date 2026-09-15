@@ -46,25 +46,20 @@
     </nav>
   </header>
 
-      <!-- ---------- REVIEWS ---------- -->
-    <section id="tab-reviews" class="tab-panel">
-        <div class="panel-head">
-    <h2 id="ordersTitle">Commandes</h2>
-    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-      <span id="lastUpdateLabel" style="font-size:0.78rem; color:var(--ink-soft);">🔄 Chargement…</span>
-      <button class="btn-ghost-sm" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏸ Pause</button>
-      <button class="btn-outline sm" onclick="loadOrders().then(() => { state.autoRefresh.lastUpdate = Date.now(); state.autoRefresh.secondsAgo = 0; })">Actualiser</button>
-      <button class="btn-primary sm" onclick="openNewOrderModal()">+ Nouvelle commande</button>
-    </div>
+     <!-- ---------- REVIEWS ---------- -->
+<section id="tab-reviews" class="tab-panel">
+  <div class="panel-head">
+    <h2>Avis clients</h2>
+    <button class="btn-outline sm" onclick="loadReviews()">Actualiser</button>
   </div>
-      <p class="hint">Les avis envoyés via le site sont en attente jusqu'à validation. Les avis Google sont déjà approuvés.</p>
-      <div class="tabs-filter" style="display:flex; gap:8px; margin-bottom:16px;">
-        <button class="btn-ghost-sm filter-btn active" data-filter="pending" onclick="setReviewFilter('pending')">En attente (<span id="countPending">0</span>)</button>
-        <button class="btn-ghost-sm filter-btn" data-filter="approved" onclick="setReviewFilter('approved')">Approuvés (<span id="countApproved">0</span>)</button>
-        <button class="btn-ghost-sm filter-btn" data-filter="all" onclick="setReviewFilter('all')">Tous</button>
-      </div>
-      <div id="reviewsList" class="orders-list"></div>
-    </section>
+  <p class="hint">Les avis envoyés via le site sont en attente jusqu'à validation. Les avis Google sont déjà approuvés.</p>
+  <div class="tabs-filter" style="display:flex; gap:8px; margin-bottom:16px;">
+    <button class="btn-ghost-sm filter-btn active" data-filter="pending" onclick="setReviewFilter('pending')">En attente (<span id="countPending">0</span>)</button>
+    <button class="btn-ghost-sm filter-btn" data-filter="approved" onclick="setReviewFilter('approved')">Approuvés (<span id="countApproved">0</span>)</button>
+    <button class="btn-ghost-sm filter-btn" data-filter="all" onclick="setReviewFilter('all')">Tous</button>
+  </div>
+  <div id="reviewsList" class="orders-list"></div>
+</section>
 
   <main class="admin-main">
 
@@ -100,7 +95,12 @@
 
   <div class="panel-head">
     <h2 id="ordersTitle">Commandes</h2>
-    <button class="btn-outline sm" onclick="loadOrders()">Actualiser</button>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <span id="lastUpdateLabel" style="font-size:0.78rem; color:var(--ink-soft);">🔄 Chargement…</span>
+      <button class="btn-ghost-sm" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏸ Pause</button>
+      <button class="btn-outline sm" onclick="loadOrders().then(() => { state.autoRefresh.lastUpdate = Date.now(); state.autoRefresh.secondsAgo = 0; })">Actualiser</button>
+      <button class="btn-primary sm" onclick="openNewOrderModal()">+ Nouvelle commande</button>
+    </div>
   </div>
   <div id="ordersList" class="orders-list"></div>
 </section>
