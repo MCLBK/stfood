@@ -23,7 +23,8 @@ let state = {
     zoneId: null,
     zoneFee: 0,
   },
-  addDishContext: null,
+   addDishContext: null,
+   analyticsRange: 'today',
 };
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
@@ -89,6 +90,11 @@ function switchTab(name){
     startAutoRefresh();
   } else {
     stopAutoRefresh();
+  }
+
+  // Charger les analytics quand on ouvre l'onglet
+  if(name === 'analytics'){
+    loadAnalytics();
   }
 }
 
@@ -1131,6 +1137,142 @@ async function submitNewOrder(e){
     alert('Commande ' + data.orderId + ' enregistrée.');
   } catch (err) {
     alert('Erreur réseau : ' + err.message);
+  }
+}
+
+/* ---------- Analytics ---------- */
+function setAnalyticsRange(range){
+  state.analyticsRange = range;
+
+  document.querySelectorAll('[data-range-ana]').forEach(b => {
+    b.classList.toggle('active', b.dataset.rangeAna === range);
+  });
+
+  loadAnalytics();
+}
+
+async function loadAnalytics(){
+  const today = new Date();
+  const fmtDate = d => d.toISOString().slice(0, 10);
+  let since = null, until = null;
+
+  const range = state.analyticsRange;
+  if(range === 'today'){
+    since = until = fmtDate(today);
+  } else if(range === '7d'){
+    const past = new Date(today); past.setDate(past.getDate() - 6);
+    since = fmtDate(past); until = fmtDate(today);
+  } else if(range === '30d'){
+    const past = new Date(today); past.setDate(past.getDate() - 29);
+    since = fmtDate(past); until = fmtDate(today);
+  } else if(range === 'month'){
+    const first = new Date(today.getFullYear(), today.getMonth(), 1);
+    since = fmtDate(first); until = fmtDate(today);
+  } else if(range === 'all'){
+    since = until = null;
+  }
+
+  const params = new URLSearchParams();
+  if(since) params.set('since', since);
+  if(until) params.set('until', until);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/analytics?` + params.toString(), { headers: authHeaders() });
+    const data = await res.json();
+    renderAnalytics(data);
+  } catch (err) {
+    console.error('Erreur analytics:', err);
+  }
+}
+
+function renderAnalytics(data){
+  // KPI principaux
+  const kpi = document.getElementById('analyticsKpi');
+  if(kpi){
+    kpi.innerHTML = `
+      <div class="kpi-card"><strong>${data.totalOrders}</strong><span>commandes</span></div>
+      <div class="kpi-card"><strong>${fmt(data.totalRevenue)}</strong><span>chiffre d'affaires</span></div>
+      <div class="kpi-card"><strong>${fmt(data.avgBasket)}</strong><span>panier moyen</span></div>
+      <div class="kpi-card"><strong>${data.uniqueCustomers}</strong><span>clients uniques</span></div>
+      <div class="kpi-card"><strong>${data.returningCustomers}</strong><span>clients récurrents</span></div>
+      <div class="kpi-card"><strong>${data.cancelRate}%</strong><span>taux d'annulation</span></div>
+    `;
+  }
+
+  // Top plats
+  const topDishes = document.getElementById('analyticsTopDishes');
+  if(topDishes){
+    if(data.topDishes.length === 0){
+      topDishes.innerHTML = '<p class="hint">Aucune vente sur cette période.</p>';
+    } else {
+      const maxQty = data.topDishes[0].total_qty;
+      topDishes.innerHTML = data.topDishes.map((d, i) => `
+        <div class="analytics-row">
+          <div class="ar-rank">${i + 1}</div>
+          <div class="ar-label">${d.dish_name}</div>
+          <div class="ar-bar-wrap">
+            <div class="ar-bar" style="width:${Math.round((d.total_qty / maxQty) * 100)}%;"></div>
+          </div>
+          <div class="ar-value">${d.total_qty} vendu${d.total_qty > 1 ? 's' : ''}<br><small>${fmt(d.total_revenue)}</small></div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Répartition par mode
+  const byMode = document.getElementById('analyticsByMode');
+  if(byMode){
+    const modes = [
+      { key: 'livraison', label: '🛵 Livraison', count: data.byMode.livraison, revenue: data.revenueByMode.livraison, avg: data.avgByMode.livraison },
+      { key: 'emporter', label: '🥡 À emporter', count: data.byMode.emporter, revenue: data.revenueByMode.emporter, avg: data.avgByMode.emporter },
+      { key: 'surplace', label: '🍽️ Sur place', count: data.byMode.surplace, revenue: data.revenueByMode.surplace, avg: data.avgByMode.surplace },
+    ];
+    const total = modes.reduce((s, m) => s + m.count, 0) || 1;
+    byMode.innerHTML = modes.map(m => `
+      <div class="analytics-row">
+        <div class="ar-label">${m.label}</div>
+        <div class="ar-bar-wrap">
+          <div class="ar-bar" style="width:${Math.round((m.count / total) * 100)}%;"></div>
+        </div>
+        <div class="ar-value">${m.count} cmd<br><small>${fmt(m.revenue)} · panier ${fmt(m.avg)}</small></div>
+      </div>
+    `).join('');
+  }
+
+  // Heures de pointe
+  const byHour = document.getElementById('analyticsByHour');
+  if(byHour){
+    const maxHour = Math.max(...data.byHour, 1);
+    let html = '<div class="hours-grid">';
+    for(let h = 0; h < 24; h++){
+      const count = data.byHour[h];
+      const height = count > 0 ? Math.max(4, Math.round((count / maxHour) * 100)) : 2;
+      html += `
+        <div class="hour-col" title="${h}h — ${count} commande${count > 1 ? 's' : ''}">
+          <div class="hour-bar" style="height:${height}%;"></div>
+          <div class="hour-label">${h}h</div>
+        </div>
+      `;
+    }
+    html += '</div>';
+    byHour.innerHTML = html;
+  }
+
+  // Jours de la semaine
+  const byDay = document.getElementById('analyticsByDay');
+  if(byDay){
+    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const maxDay = Math.max(...data.byDay, 1);
+    const order = [1, 2, 3, 4, 5, 6, 0]; // Lundi → Dimanche
+    byDay.innerHTML = order.map(d => `
+      <div class="analytics-row">
+        <div class="ar-label">${dayNames[d]}</div>
+        <div class="ar-bar-wrap">
+          <div class="ar-bar" style="width:${Math.round((data.byDay[d] / maxDay) * 100)}%;"></div>
+        </div>
+        <div class="ar-value">${data.byDay[d]} cmd</div>
+      </div>
+    `).join('');
   }
 }
 
