@@ -569,3 +569,40 @@ footer .tag{font-size:0.85rem; opacity:0.65; max-width:280px; line-height:1.5;}
   background:#E3F1E3; border-color:var(--leaf); color:var(--leaf); font-weight:600;
   border-style:solid;
 }
+
+/* Bouton "Suivre ma commande" dans le header */
+.track-btn{
+  display:none;
+  align-items:center;
+  gap:6px;
+  background:var(--ink);
+  color:var(--paper);
+  border:1.5px solid var(--brass);
+  font-weight:700;
+  font-size:0.83rem;
+  padding:10px 14px;
+  border-radius:var(--radius-chip);
+  cursor:pointer;
+  transition:background 0.15s, transform 0.1s;
+  animation:trackPulse 2s infinite;
+}
+.track-btn:hover{
+  background:var(--brass);
+  color:var(--paper);
+}
+.track-btn:active{
+  transform:scale(0.96);
+}
+.track-btn-label{
+  display:inline;
+}
+
+@keyframes trackPulse{
+  0%, 100%{ box-shadow:0 0 0 0 rgba(169,121,61,0.5); }
+  50%{ box-shadow:0 0 0 5px rgba(169,121,61,0); }
+}
+
+@media(max-width:640px){
+  .track-btn-label{display:none;} /* Sur mobile : juste l'icône 📦 */
+  .track-btn{padding:10px 12px;}
+}
