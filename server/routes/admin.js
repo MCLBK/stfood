@@ -361,4 +361,126 @@ router.get('/admin/stats', (req, res) => {
   });
 });
 
+/* ============================================================
+   ANALYTICS — statistiques détaillées sur une période
+   ============================================================ */
+router.get('/admin/analytics', (req, res) => {
+  const { since, until, search } = req.query;
+
+  const conditions = ["status != 'annulee'"];
+  const params = [];
+
+  if (since) {
+    conditions.push("date(created_at) >= date(?)");
+    params.push(since);
+  }
+  if (until) {
+    conditions.push("date(created_at) <= date(?)");
+    params.push(until);
+  }
+  if (search && search.trim()) {
+    conditions.push('(customer_name LIKE ? OR customer_phone LIKE ?)');
+    const q = '%' + search.trim() + '%';
+    params.push(q, q);
+  }
+
+  const where = 'WHERE ' + conditions.join(' AND ');
+
+  // Commandes de la période
+  const orders = db.prepare(`SELECT * FROM orders ${where}`).all(...params);
+
+  // Toutes les commandes (y compris annulées) pour le taux d'annulation
+  const allConditions = [];
+  const allParams = [];
+  if (since) { allConditions.push("date(created_at) >= date(?)"); allParams.push(since); }
+  if (until) { allConditions.push("date(created_at) <= date(?)"); allParams.push(until); }
+  if (search && search.trim()) {
+    allConditions.push('(customer_name LIKE ? OR customer_phone LIKE ?)');
+    const q = '%' + search.trim() + '%';
+    allParams.push(q, q);
+  }
+  const allWhere = allConditions.length ? 'WHERE ' + allConditions.join(' AND ') : '';
+  const allOrders = db.prepare(`SELECT status FROM orders ${allWhere}`).all(...allParams);
+
+  // Top plats
+  let topDishes = [];
+  if (orders.length > 0) {
+    const orderIds = orders.map(o => o.id);
+    const placeholders = orderIds.map(() => '?').join(',');
+    topDishes = db.prepare(`
+      SELECT dish_name, SUM(qty) AS total_qty, SUM(qty * unit_price) AS total_revenue
+      FROM order_items
+      WHERE order_id IN (${placeholders})
+      GROUP BY dish_name
+      ORDER BY total_qty DESC
+      LIMIT 5
+    `).all(...orderIds);
+  }
+
+  // Répartition par mode
+  const byMode = { livraison: 0, emporter: 0, surplace: 0 };
+  const revenueByMode = { livraison: 0, emporter: 0, surplace: 0 };
+  orders.forEach(o => {
+    if (byMode[o.mode] !== undefined) {
+      byMode[o.mode]++;
+      revenueByMode[o.mode] += o.total || 0;
+    }
+  });
+
+  // Heures de pointe (0-23)
+  const byHour = Array(24).fill(0);
+  orders.forEach(o => {
+    const h = new Date(o.created_at.replace(' ', 'T') + 'Z').getHours();
+    byHour[h]++;
+  });
+
+  // Jours de la semaine (0=dimanche → 6=samedi)
+  const byDay = Array(7).fill(0);
+  orders.forEach(o => {
+    const d = new Date(o.created_at.replace(' ', 'T') + 'Z').getDay();
+    byDay[d]++;
+  });
+
+  // Panier moyen global et par mode
+  const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+  const avgBasket = orders.length ? Math.round(totalRevenue / orders.length) : 0;
+  const avgByMode = {
+    livraison: byMode.livraison ? Math.round(revenueByMode.livraison / byMode.livraison) : 0,
+    emporter: byMode.emporter ? Math.round(revenueByMode.emporter / byMode.emporter) : 0,
+    surplace: byMode.surplace ? Math.round(revenueByMode.surplace / byMode.surplace) : 0,
+  };
+
+  // Taux d'annulation
+  const cancelled = allOrders.filter(o => o.status === 'annulee').length;
+  const cancelRate = allOrders.length ? Math.round((cancelled / allOrders.length) * 100) : 0;
+
+  // Clients uniques (par téléphone)
+  const phones = new Set(orders.filter(o => o.customer_phone).map(o => o.customer_phone));
+  const uniqueCustomers = phones.size;
+
+  // Clients récurrents (téléphone présent dans >1 commande sur la période)
+  const phoneCounts = {};
+  orders.forEach(o => {
+    if (o.customer_phone) {
+      phoneCounts[o.customer_phone] = (phoneCounts[o.customer_phone] || 0) + 1;
+    }
+  });
+  const returningCustomers = Object.values(phoneCounts).filter(c => c > 1).length;
+
+  res.json({
+    totalOrders: orders.length,
+    totalRevenue,
+    avgBasket,
+    uniqueCustomers,
+    returningCustomers,
+    cancelRate,
+    topDishes,
+    byMode,
+    revenueByMode,
+    avgByMode,
+    byHour,
+    byDay,
+  });
+});
+
 module.exports = router;
