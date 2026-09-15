@@ -262,8 +262,55 @@
 
     <!-- ---------- LOYALTY ---------- -->
     <section id="tab-loyalty" class="tab-panel">
-      <div class="panel-head"><h2>Fidélité</h2></div>
-      <p class="hint">Récompense tous les 8 commandes (numéro de téléphone donné à la commande).</p>
+      <div class="panel-head">
+        <h2>Fidélité</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-outline sm" onclick="loadLoyalty()">Actualiser</button>
+          <button class="btn-primary sm" onclick="exportLoyaltyCSV()">📥 Exporter CSV</button>
+        </div>
+      </div>
+
+      <p class="hint">Récompense tous les 8 commandes. Les paliers Bronze / Argent / Or donnent des avantages progressifs.</p>
+
+      <!-- Compteurs par palier -->
+      <div class="loyalty-tiers" id="loyaltyTiers">
+        <div class="tier-card" data-tier="bronze">
+          <span class="tier-emoji">🥉</span>
+          <strong id="countBronze">0</strong>
+          <span>Bronze</span>
+        </div>
+        <div class="tier-card" data-tier="argent">
+          <span class="tier-emoji">🥈</span>
+          <strong id="countArgent">0</strong>
+          <span>Argent</span>
+        </div>
+        <div class="tier-card" data-tier="or">
+          <span class="tier-emoji">🥇</span>
+          <strong id="countOr">0</strong>
+          <span>Or</span>
+        </div>
+        <div class="tier-card" data-tier="all">
+          <span class="tier-emoji">👥</span>
+          <strong id="countAll">0</strong>
+          <span>Total clients</span>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="filters-bar" style="margin-bottom:16px;">
+        <div class="filters-row">
+          <span class="filter-label">Palier :</span>
+          <button class="filter-btn active" data-loyalty-tier="all" onclick="setLoyaltyFilter('all')">Tous</button>
+          <button class="filter-btn" data-loyalty-tier="bronze" onclick="setLoyaltyFilter('bronze')">🥉 Bronze</button>
+          <button class="filter-btn" data-loyalty-tier="argent" onclick="setLoyaltyFilter('argent')">🥈 Argent</button>
+          <button class="filter-btn" data-loyalty-tier="or" onclick="setLoyaltyFilter('or')">🥇 Or</button>
+        </div>
+        <div class="filters-row">
+          <input type="text" id="loyaltySearch" placeholder="Rechercher par nom ou téléphone…" class="search-input" oninput="onLoyaltySearchInput()">
+          <button class="btn-outline sm" onclick="clearLoyaltyFilters()">Réinitialiser</button>
+        </div>
+      </div>
+
       <div id="loyaltyList" class="simple-table"></div>
     </section>
 
