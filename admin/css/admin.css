@@ -225,3 +225,52 @@ input, select, textarea{font-family:inherit;}
 .order-item-row strong{font-size:0.9rem;}
 .oi-variant{display:block; font-size:0.76rem; color:var(--ink-soft); margin-top:2px;}
 .oi-right{display:flex; align-items:center; gap:10px; font-weight:700;}
+
+/* Analytics */
+.analytics-kpi{
+  display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:24px;
+}
+@media(min-width:640px){.analytics-kpi{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:960px){.analytics-kpi{grid-template-columns:repeat(6,1fr);}}
+
+.kpi-card{
+  background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; text-align:center;
+}
+.kpi-card strong{display:block; font-size:1.3rem; color:var(--ink); font-weight:800;}
+.kpi-card span{font-size:0.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.03em;}
+
+.analytics-block{
+  background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:20px;
+}
+.analytics-block h3{font-size:1rem; margin-bottom:16px; font-weight:800;}
+
+.analytics-row{
+  display:grid; grid-template-columns:auto 1fr 2fr auto; gap:12px; align-items:center;
+  padding:10px 0; border-bottom:1px solid var(--line);
+}
+.analytics-row:last-child{border-bottom:none;}
+.ar-rank{
+  width:26px; height:26px; border-radius:50%; background:var(--ink); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.78rem;
+}
+.ar-label{font-weight:700; font-size:0.88rem;}
+.ar-bar-wrap{background:var(--line); border-radius:999px; height:10px; overflow:hidden; position:relative;}
+.ar-bar{background:var(--red); height:100%; border-radius:999px; transition:width 0.3s;}
+.ar-value{font-size:0.78rem; font-weight:700; text-align:right; min-width:90px;}
+.ar-value small{font-size:0.7rem; color:var(--ink-soft); font-weight:600;}
+
+/* Graphique heures */
+.hours-grid{
+  display:grid; grid-template-columns:repeat(24,1fr); gap:2px; height:140px; align-items:end;
+}
+.hour-col{display:flex; flex-direction:column; align-items:center; height:100%;}
+.hour-bar{
+  width:100%; background:var(--red); border-radius:3px 3px 0 0; min-height:2px;
+  transition:height 0.3s;
+}
+.hour-label{font-size:0.6rem; color:var(--ink-soft); margin-top:4px; transform:rotate(-45deg); transform-origin:center;}
+
+@media(max-width:640px){
+  .hours-grid{grid-template-columns:repeat(12,1fr); gap:3px; height:auto;}
+  .hour-label{font-size:0.55rem; transform:none;}
+}
