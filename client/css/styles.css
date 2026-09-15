@@ -523,3 +523,49 @@ footer .tag{font-size:0.85rem; opacity:0.65; max-width:280px; line-height:1.5;}
   border-radius:0 12px 12px 0; padding:15px 16px; margin-top:6px;
 }
 .group-note p{font-size:0.85rem; color:var(--ink-soft); line-height:1.55;}
+
+/* Fidélité — bloc palier */
+.loyalty-box{
+  margin-top:14px; background:var(--paper-warm); border-radius:14px; padding:18px 16px;
+  display:flex; flex-direction:column; gap:12px;
+}
+.loyalty-header{
+  display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.loyalty-badge{
+  display:inline-block; color:#fff; font-weight:800; font-size:0.78rem;
+  padding:6px 14px; border-radius:999px; letter-spacing:0.03em;
+  text-transform:uppercase;
+}
+.loyalty-count{
+  font-size:0.82rem; color:var(--ink-soft); font-weight:600;
+}
+.loyalty-perks{
+  list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:5px;
+}
+.loyalty-perks li{
+  font-size:0.82rem; color:var(--ink-soft); padding-left:16px; position:relative;
+}
+.loyalty-perks li::before{
+  content:"✓"; position:absolute; left:0; color:var(--leaf); font-weight:800;
+}
+.loyalty-progress{margin-top:4px;}
+.loyalty-progress-label{
+  display:flex; justify-content:space-between; font-size:0.78rem;
+  font-weight:700; color:var(--ink-soft); margin-bottom:6px;
+}
+.loyalty-progress-bar{
+  height:8px; background:var(--line); border-radius:999px; overflow:hidden;
+}
+.loyalty-progress-fill{
+  height:100%; border-radius:999px; transition:width 0.4s ease;
+}
+.loyalty-reward{
+  background:#fff; border-radius:10px; padding:12px 14px;
+  font-size:0.84rem; color:var(--ink-soft); text-align:center;
+  border:1px dashed var(--line-strong);
+}
+.loyalty-reward.unlocked{
+  background:#E3F1E3; border-color:var(--leaf); color:var(--leaf); font-weight:600;
+  border-style:solid;
+}
