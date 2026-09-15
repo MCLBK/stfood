@@ -17,7 +17,13 @@ let state = {
   },
   editingOrderId: null,
   hasOpenModal: false,
-
+  newOrder: {
+    mode: 'surplace',
+    items: [],
+    zoneId: null,
+    zoneFee: 0,
+  },
+  addDishContext: null,
 };
 function authHeaders(){
   return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
@@ -814,6 +820,318 @@ function setupModalDetection(){
     subtree: true,
     attributeFilter: ['style', 'class'],
   });
+}
+
+/* ---------- Création manuelle de commande ---------- */
+function openNewOrderModal(){
+  state.newOrder = { mode: 'surplace', items: [], zoneId: null, zoneFee: 0 };
+  state.hasOpenModal = true;
+  document.getElementById('no-name').value = '';
+  document.getElementById('no-phone').value = '';
+  setNewOrderMode('surplace');
+  renderNewOrderItems();
+  document.getElementById('newOrderModal').style.display = 'flex';
+}
+
+function closeNewOrderModal(){
+  state.hasOpenModal = false;
+  document.getElementById('newOrderModal').style.display = 'none';
+}
+
+function setNewOrderMode(mode){
+  state.newOrder.mode = mode;
+  document.getElementById('no-mode').value = mode;
+
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+
+  const fields = document.getElementById('no-mode-fields');
+  if(mode === 'livraison'){
+    fields.innerHTML = `
+      <h3>Livraison</h3>
+      <div class="form-grid">
+        <div class="full">
+          <label>Adresse</label>
+          <input type="text" id="no-address" placeholder="Quartier, repère...">
+        </div>
+        <div>
+          <label>Zone</label>
+          <select id="no-zone" onchange="onZoneChange()">
+            <option value="">— Choisir une zone —</option>
+            ${state.zones.map(z => `<option value="${z.id}" data-fee="${z.fee}">${z.label} ${z.fee > 0 ? '— ' + fmt(z.fee) : '— livreur confirme'}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Indications (optionnel)</label>
+          <input type="text" id="no-notes" placeholder="Portail bleu, 2e étage...">
+        </div>
+      </div>
+    `;
+    document.getElementById('no-fee-row').style.display = 'flex';
+  } else if(mode === 'surplace'){
+    fields.innerHTML = `
+      <h3>Sur place</h3>
+      <div class="form-grid">
+        <div>
+          <label>Numéro de table (optionnel)</label>
+          <input type="text" id="no-table" placeholder="ex: 5">
+        </div>
+        <div>
+          <label>Nombre de personnes</label>
+          <select id="no-people">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5+</option>
+          </select>
+        </div>
+      </div>
+    `;
+    document.getElementById('no-fee-row').style.display = 'none';
+  } else {
+    fields.innerHTML = '';
+    document.getElementById('no-fee-row').style.display = 'none';
+  }
+  updateNewOrderTotals();
+}
+
+function onZoneChange(){
+  const sel = document.getElementById('no-zone');
+  const opt = sel.options[sel.selectedIndex];
+  state.newOrder.zoneId = sel.value || null;
+  state.newOrder.zoneFee = opt ? parseInt(opt.dataset.fee, 10) || 0 : 0;
+  updateNewOrderTotals();
+}
+
+function openAddDishToOrder(){
+  state.addDishContext = { categoryId: state.categories[0]?.id, currentDish: null, options: {} };
+  renderAddDishModal();
+  document.getElementById('addDishModal').style.display = 'flex';
+}
+
+function closeAddDishModal(){
+  document.getElementById('addDishModal').style.display = 'none';
+  state.addDishContext = null;
+}
+
+function renderAddDishModal(){
+  const ctx = state.addDishContext;
+  if(!ctx) return;
+  const body = document.getElementById('addDishBody');
+
+  if(!ctx.currentDish){
+    // Étape 1 : choisir catégorie + plat
+    const dishes = state.dishes.filter(d => d.category_id === ctx.categoryId && d.available && !d.soon);
+    body.innerHTML = `
+      <div class="form-grid">
+        <div class="full">
+          <label>Catégorie</label>
+          <select onchange="state.addDishContext.categoryId = this.value; renderAddDishModal();">
+            ${state.categories.map(c => `<option value="${c.id}" ${c.id === ctx.categoryId ? 'selected' : ''}>${c.emoji || ''} ${c.label}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="dish-pick-list">
+        ${dishes.map(d => `
+          <button type="button" class="dish-pick-row" onclick="pickDishForOrder('${d.id}')">
+            <span class="dp-name">${d.name}</span>
+            <span class="dp-price">${d.is_simple ? fmt(d.price_simple) : 'XL ' + fmt(d.price_xl)}</span>
+          </button>
+        `).join('') || '<p class="hint">Aucun plat disponible dans cette catégorie.</p>'}
+      </div>
+    `;
+  } else {
+    // Étape 2 : options du plat
+    const d = ctx.currentDish;
+    const o = ctx.options;
+    const price = d.is_simple ? d.price_simple : (o.size === 'xxl' ? d.price_xxl : d.price_xl);
+    const total = price * (o.qty || 1);
+
+    body.innerHTML = `
+      <h3 style="margin-bottom:12px;">${d.name}</h3>
+
+      ${!d.is_simple ? `
+      <div class="opt-group">
+        <span class="opt-label">Taille</span>
+        <div class="opt-row">
+          <button type="button" class="opt-pill ${o.size === 'xl' ? 'selected' : ''}" onclick="setAddDishOpt('size', 'xl')">XL · ${fmt(d.price_xl)}</button>
+          <button type="button" class="opt-pill ${o.size === 'xxl' ? 'selected' : ''}" onclick="setAddDishOpt('size', 'xxl')">XXL · ${fmt(d.price_xxl)}</button>
+        </div>
+      </div>` : ''}
+
+      ${d.color_option ? `
+      <div class="opt-group">
+        <span class="opt-label">Sauce</span>
+        <div class="opt-row">
+          <button type="button" class="opt-pill ${o.color === 'rouge' ? 'selected' : ''}" onclick="setAddDishOpt('color', 'rouge')">Rouge</button>
+          <button type="button" class="opt-pill ${o.color === 'blanc' ? 'selected' : ''}" onclick="setAddDishOpt('color', 'blanc')">Blanc</button>
+        </div>
+      </div>` : ''}
+
+      ${d.spicy_toggle ? `
+      <div class="opt-group">
+        <span class="opt-label">Niveau</span>
+        <div class="opt-row">
+          <button type="button" class="opt-pill ${!o.spicy ? 'selected' : ''}" onclick="setAddDishOpt('spicy', false)">Normal</button>
+          <button type="button" class="opt-pill spicy ${o.spicy ? 'selected' : ''}" onclick="setAddDishOpt('spicy', true)">Spicy</button>
+        </div>
+      </div>` : ''}
+
+      ${d.viande_option ? `
+      <div class="opt-group">
+        <span class="opt-label">Viande</span>
+        <div class="opt-row">
+          <button type="button" class="opt-pill ${!o.viande ? 'selected' : ''}" onclick="setAddDishOpt('viande', false)">Sans</button>
+          <button type="button" class="opt-pill ${o.viande ? 'selected' : ''}" onclick="setAddDishOpt('viande', true)">Avec viande</button>
+        </div>
+      </div>` : ''}
+
+      <div class="opt-group">
+        <span class="opt-label">Quantité</span>
+        <div class="qty-row">
+          <button type="button" class="qty-btn" onclick="setAddDishOpt('qty', Math.max(1, (state.addDishContext.options.qty || 1) - 1))">−</button>
+          <span class="qty-val">${o.qty || 1}</span>
+          <button type="button" class="qty-btn" onclick="setAddDishOpt('qty', (state.addDishContext.options.qty || 1) + 1)">+</button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-outline" onclick="state.addDishContext.currentDish = null; renderAddDishModal();">Retour</button>
+        <button type="button" class="btn-primary" onclick="confirmAddDishToOrder()">Ajouter · ${fmt(total)}</button>
+      </div>
+    `;
+  }
+}
+
+function pickDishForOrder(dishId){
+  const d = state.dishes.find(x => x.id === dishId);
+  state.addDishContext.currentDish = d;
+  state.addDishContext.options = {
+    size: d.is_simple ? null : 'xl',
+    spicy: false,
+    viande: false,
+    color: 'rouge',
+    qty: 1,
+  };
+  renderAddDishModal();
+}
+
+function setAddDishOpt(key, val){
+  state.addDishContext.options[key] = val;
+  renderAddDishModal();
+}
+
+function confirmAddDishToOrder(){
+  const ctx = state.addDishContext;
+  const d = ctx.currentDish;
+  const o = ctx.options;
+  const price = d.is_simple ? d.price_simple : (o.size === 'xxl' ? d.price_xxl : d.price_xl);
+
+  let label = d.name;
+  const parts = [];
+  if(o.size) parts.push(o.size.toUpperCase());
+  if(d.color_option && o.color) parts.push(o.color === 'rouge' ? 'Rouge' : 'Blanc');
+  if(d.spicy_toggle) parts.push(o.spicy ? 'Spicy' : 'Normal');
+  if(d.viande_option && o.viande) parts.push('avec viande');
+  const variant_label = parts.join(' · ');
+
+  state.newOrder.items.push({
+    dish_id: d.id,
+    dish_name: d.name,
+    variant_label,
+    unit_price: price,
+    qty: o.qty || 1,
+  });
+
+  closeAddDishModal();
+  renderNewOrderItems();
+}
+
+function removeItemFromNewOrder(index){
+  state.newOrder.items.splice(index, 1);
+  renderNewOrderItems();
+}
+
+function renderNewOrderItems(){
+  const el = document.getElementById('no-items-list');
+  if(!el) return;
+
+  if(state.newOrder.items.length === 0){
+    el.innerHTML = '<p class="hint">Aucun plat ajouté pour l\'instant.</p>';
+  } else {
+    el.innerHTML = state.newOrder.items.map((it, i) => `
+      <div class="order-item-row">
+        <div>
+          <strong>${it.qty}× ${it.dish_name}</strong>
+          ${it.variant_label ? `<span class="oi-variant">${it.variant_label}</span>` : ''}
+        </div>
+        <div class="oi-right">
+          <span>${fmt(it.unit_price * it.qty)}</span>
+          <button type="button" class="btn-danger" onclick="removeItemFromNewOrder(${i})">×</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  updateNewOrderTotals();
+}
+
+function updateNewOrderTotals(){
+  const subtotal = state.newOrder.items.reduce((s, it) => s + it.unit_price * it.qty, 0);
+  const fee = state.newOrder.mode === 'livraison' ? state.newOrder.zoneFee : 0;
+  const total = subtotal + fee;
+
+  const elSub = document.getElementById('no-subtotal');
+  const elFee = document.getElementById('no-fee');
+  const elTotal = document.getElementById('no-total');
+  if(elSub) elSub.textContent = fmt(subtotal);
+  if(elFee) elFee.textContent = fmt(fee);
+  if(elTotal) elTotal.textContent = fmt(total);
+}
+
+async function submitNewOrder(e){
+  e.preventDefault();
+  if(state.newOrder.items.length === 0){
+    alert('Ajoutez au moins un plat.');
+    return;
+  }
+
+  const mode = state.newOrder.mode;
+  const body = {
+    mode,
+    customer_name: document.getElementById('no-name').value.trim() || null,
+    customer_phone: document.getElementById('no-phone').value.trim() || null,
+    items: state.newOrder.items,
+  };
+
+  if(mode === 'livraison'){
+    body.delivery_address = document.getElementById('no-address')?.value.trim() || null;
+    body.delivery_zone_id = state.newOrder.zoneId;
+    body.delivery_notes = document.getElementById('no-notes')?.value.trim() || null;
+  } else if(mode === 'surplace'){
+    const table = document.getElementById('no-table')?.value.trim();
+    if(table) body.delivery_notes = 'Table ' + table;
+    body.people_count = parseInt(document.getElementById('no-people')?.value, 10) || null;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/orders`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if(!res.ok){
+      alert('Erreur : ' + (data.error || 'inconnue'));
+      return;
+    }
+    closeNewOrderModal();
+    await loadOrders({ force: true });
+    alert('Commande ' + data.orderId + ' enregistrée.');
+  } catch (err) {
+    alert('Erreur réseau : ' + err.message);
+  }
 }
 
 checkAuthAndShow();
