@@ -43,6 +43,7 @@
       <button class="tab-btn" data-tab="loyalty" onclick="switchTab('loyalty')">Fidélité</button>
       <button class="tab-btn" data-tab="qr" onclick="switchTab('qr')">QR codes</button>
       <button class="tab-btn" data-tab="reviews" onclick="switchTab('reviews')">Avis <span id="pendingReviewsBadge" class="badge" style="display:none; margin-left:6px; background:var(--red); color:#fff;"></span></button>
+      <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">Analytics</button>
     </nav>
   </header>
 
@@ -61,6 +62,55 @@
   <div id="reviewsList" class="orders-list"></div>
 </section>
 
+      <!-- ---------- ANALYTICS ---------- -->
+    <section id="tab-analytics" class="tab-panel">
+      <div class="panel-head">
+        <h2>Analytics</h2>
+        <button class="btn-outline sm" onclick="loadAnalytics()">Actualiser</button>
+      </div>
+
+      <p class="hint">Les statistiques ci-dessous utilisent la même période que les filtres de l'onglet Commandes.</p>
+
+      <!-- Filtres période (réutilise les mêmes) -->
+      <div class="filters-bar">
+        <div class="filters-row">
+          <span class="filter-label">Période :</span>
+          <button class="filter-btn active" data-range-ana="today" onclick="setAnalyticsRange('today')">Aujourd'hui</button>
+          <button class="filter-btn" data-range-ana="7d" onclick="setAnalyticsRange('7d')">7 jours</button>
+          <button class="filter-btn" data-range-ana="30d" onclick="setAnalyticsRange('30d')">30 jours</button>
+          <button class="filter-btn" data-range-ana="month" onclick="setAnalyticsRange('month')">Ce mois</button>
+          <button class="filter-btn" data-range-ana="all" onclick="setAnalyticsRange('all')">Tout</button>
+        </div>
+      </div>
+
+      <!-- KPI principaux -->
+      <div class="analytics-kpi" id="analyticsKpi"></div>
+
+      <!-- Top plats -->
+      <div class="analytics-block">
+        <h3>🏆 Top 5 des plats les plus vendus</h3>
+        <div id="analyticsTopDishes"></div>
+      </div>
+
+      <!-- Répartition par mode -->
+      <div class="analytics-block">
+        <h3>📊 Répartition par mode de commande</h3>
+        <div id="analyticsByMode"></div>
+      </div>
+
+      <!-- Heures de pointe -->
+      <div class="analytics-block">
+        <h3>⏰ Heures de pointe</h3>
+        <div id="analyticsByHour"></div>
+      </div>
+
+      <!-- Jours de la semaine -->
+      <div class="analytics-block">
+        <h3>📅 Jours les plus chargés</h3>
+        <div id="analyticsByDay"></div>
+      </div>
+    </section>
+  
   <main class="admin-main">
 
     <!-- ---------- ORDERS ---------- -->
