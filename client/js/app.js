@@ -6,6 +6,7 @@
 // le front serait un jour déployé séparément du backend.
 const API_BASE = window.STREETFOOD_API_BASE || '';
 const REWARD_THRESHOLD = 8; // doit rester cohérent avec server/routes/loyalty.js
+const LAST_ORDER_KEY = 'sf_last_order_id'; // clé localStorage pour retrouver la commande en cours
 
 /* ============================================================
    ÉTAT DE L'APPLICATION
@@ -648,7 +649,9 @@ async function submitOrder(){
   renderTracking();
   document.getElementById('trackOverlay').classList.add('open');
   showToast('Commande envoyée !');
-  localStorage.setItem('sf_last_phone', phone);   // ← NOUVELLE LIGNE
+  localStorage.setItem('sf_last_phone', phone);
+  localStorage.setItem(LAST_ORDER_KEY, order.id);   // ← NOUVELLE LIGNE
+  updateTrackBtn();                                  // ← NOUVELLE LIGNE
   loadLoyalty(phone);
   startPolling(order.id);
 }
@@ -664,11 +667,13 @@ function startPolling(orderId){
       renderTracking();
       if(['livree','servie','annulee'].includes(order.status)){
         clearInterval(state.pollTimer);
+        // Nettoyer l'ID stocké : la commande est terminée
+        localStorage.removeItem(LAST_ORDER_KEY);
+        updateTrackBtn();
       }
     }catch(err){ /* silencieux — on réessaiera au prochain tic */ }
   }, 7000);
 }
-
 async function loadLoyalty(phone){
   try{
     const res = await fetch(`${API_BASE}/api/loyalty/${phone}`);
@@ -779,6 +784,8 @@ async function init(){
   renderCategories();
   renderDishes();
   updateCartUI();
+  updateTrackBtn();       // ← affiche le bouton si une commande est en cours
+  checkExistingOrder();   // ← reprend le polling si nécessaire
 }
 
 /* ============================================================
@@ -881,6 +888,86 @@ async function loadMyStatus(phone){
     result.innerHTML = renderLoyaltyBlock(data);
   } catch(err){
     result.innerHTML = '<p style="color:var(--red); font-size:0.85rem;">Impossible de charger ton statut pour l\'instant.</p>';
+  }
+}
+
+/* ============================================================
+   BOUTON "SUIVRE MA COMMANDE"
+   Permet de rouvrir le suivi si le client ferme l'overlay
+   ============================================================ */
+async function reopenTracking(){
+  const orderId = localStorage.getItem(LAST_ORDER_KEY);
+
+  if(!orderId){
+    showToast("Aucune commande en cours à suivre");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/orders/${orderId}`);
+    if(!res.ok){
+      // La commande n'existe plus ou est introuvable → on nettoie
+      localStorage.removeItem(LAST_ORDER_KEY);
+      updateTrackBtn();
+      showToast("Aucune commande en cours");
+      return;
+    }
+
+    const order = await res.json();
+
+    // Si la commande est terminée, on nettoie et on prévient le client
+    if(['livree','servie','annulee'].includes(order.status)){
+      localStorage.removeItem(LAST_ORDER_KEY);
+      updateTrackBtn();
+      showToast("Ta commande précédente est terminée");
+      return;
+    }
+
+    // Rouvrir le suivi
+    state.activeOrder = order;
+    renderTracking();
+    document.getElementById('trackOverlay').classList.add('open');
+    startPolling(order.id);
+
+  } catch(err){
+    showToast("Impossible de charger ta commande");
+  }
+}
+
+function updateTrackBtn(){
+  const btn = document.getElementById('trackBtn');
+  if(!btn) return;
+  const orderId = localStorage.getItem(LAST_ORDER_KEY);
+  if(orderId){
+    btn.style.display = 'inline-flex';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+// Vérifier au démarrage s'il y a une commande en cours
+async function checkExistingOrder(){
+  const orderId = localStorage.getItem(LAST_ORDER_KEY);
+  if(!orderId) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/orders/${orderId}`);
+    if(!res.ok){
+      localStorage.removeItem(LAST_ORDER_KEY);
+      return;
+    }
+    const order = await res.json();
+
+    if(['livree','servie','annulee'].includes(order.status)){
+      localStorage.removeItem(LAST_ORDER_KEY);
+      return;
+    }
+
+    state.activeOrder = order;
+    updateTrackBtn();
+    startPolling(order.id);
+  } catch(err){
+    // Silencieux — pas bloquant
   }
 }
 
