@@ -54,6 +54,7 @@
       <span id="lastUpdateLabel" style="font-size:0.78rem; color:var(--ink-soft);">🔄 Chargement…</span>
       <button class="btn-ghost-sm" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏸ Pause</button>
       <button class="btn-outline sm" onclick="loadOrders().then(() => { state.autoRefresh.lastUpdate = Date.now(); state.autoRefresh.secondsAgo = 0; })">Actualiser</button>
+      <button class="btn-primary sm" onclick="openNewOrderModal()">+ Nouvelle commande</button>
     </div>
   </div>
       <p class="hint">Les avis envoyés via le site sont en attente jusqu'à validation. Les avis Google sont déjà approuvés.</p>
@@ -103,6 +104,84 @@
   </div>
   <div id="ordersList" class="orders-list"></div>
 </section>
+
+    <!-- ===================== MODAL NOUVELLE COMMANDE ===================== -->
+<div class="modal-overlay" id="newOrderModal" style="display:none;">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeNewOrderModal()">✕</button>
+    <h2>Nouvelle commande</h2>
+    <p class="hint">Pour les commandes prises par téléphone, à l'accueil ou par un serveur.</p>
+
+    <form id="newOrderForm" onsubmit="submitNewOrder(event)">
+      <!-- Client -->
+      <div class="form-section">
+        <h3>Client</h3>
+        <div class="form-grid">
+          <div>
+            <label>Nom</label>
+            <input type="text" id="no-name" placeholder="Nom du client">
+          </div>
+          <div>
+            <label>Téléphone</label>
+            <input type="tel" id="no-phone" placeholder="+229 ...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode -->
+      <div class="form-section">
+        <h3>Mode de commande</h3>
+        <div class="mode-choice">
+          <button type="button" class="mode-btn active" data-mode="surplace" onclick="setNewOrderMode('surplace')">Sur place</button>
+          <button type="button" class="mode-btn" data-mode="emporter" onclick="setNewOrderMode('emporter')">À emporter</button>
+          <button type="button" class="mode-btn" data-mode="livraison" onclick="setNewOrderMode('livraison')">Livraison</button>
+        </div>
+        <input type="hidden" id="no-mode" value="surplace">
+      </div>
+
+      <!-- Champs spécifiques au mode -->
+      <div class="form-section" id="no-mode-fields"></div>
+
+      <!-- Plats -->
+      <div class="form-section">
+        <h3>Plats</h3>
+        <div id="no-items-list"></div>
+        <button type="button" class="btn-outline sm" onclick="openAddDishToOrder()">+ Ajouter un plat</button>
+      </div>
+
+      <!-- Total -->
+      <div class="form-section">
+        <div class="order-total-row">
+          <span>Sous-total</span>
+          <strong id="no-subtotal">0 F</strong>
+        </div>
+        <div class="order-total-row" id="no-fee-row" style="display:none;">
+          <span>Frais de livraison</span>
+          <strong id="no-fee">0 F</strong>
+        </div>
+        <div class="order-total-row total">
+          <span>TOTAL</span>
+          <strong id="no-total">0 F</strong>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn-outline" onclick="closeNewOrderModal()">Annuler</button>
+        <button type="submit" class="btn-primary">Enregistrer la commande</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL AJOUT PLAT ===================== -->
+<div class="modal-overlay" id="addDishModal" style="display:none;">
+  <div class="modal-content modal-narrow">
+    <button class="modal-close" onclick="closeAddDishModal()">✕</button>
+    <h2>Ajouter un plat</h2>
+    <div id="addDishBody"></div>
+  </div>
+</div>
 
     <!-- ---------- MENU ---------- -->
     <section id="tab-menu" class="tab-panel">
