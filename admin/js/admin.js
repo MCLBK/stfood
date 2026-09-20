@@ -1393,4 +1393,147 @@ function renderAnalytics(data){
   }
 }
 
+/* ============================================================
+   HISTORIQUE CLIENT
+   ============================================================ */
+async function openClientHistory(phone){
+  state.hasOpenModal = true;
+  document.getElementById('clientHistoryModal').style.display = 'flex';
+
+  const body = document.getElementById('clientHistoryBody');
+  body.innerHTML = '<p style="text-align:center; color:var(--ink-soft); padding:30px;">Chargement…</p>';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/loyalty/${encodeURIComponent(phone)}/orders`, {
+      headers: authHeaders(),
+    });
+    const data = await res.json();
+
+    if(!res.ok){
+      body.innerHTML = `<p style="color:var(--red); text-align:center; padding:30px;">${data.error || 'Erreur'}</p>`;
+      return;
+    }
+
+    renderClientHistory(data);
+  } catch (err) {
+    body.innerHTML = '<p style="color:var(--red); text-align:center; padding:30px;">Erreur réseau</p>';
+  }
+}
+
+function closeClientHistory(){
+  state.hasOpenModal = false;
+  document.getElementById('clientHistoryModal').style.display = 'none';
+}
+
+function renderClientHistory(data){
+  const body = document.getElementById('clientHistoryBody');
+  const s = data.stats;
+
+  // Déterminer le palier
+  const TIERS = [
+    { id: 'bronze', label: 'Bronze', emoji: '🥉', minOrders: 1, maxOrders: 4, color: '#A9793D' },
+    { id: 'argent', label: 'Argent', emoji: '🥈', minOrders: 5, maxOrders: 7, color: '#8A8A8A' },
+    { id: 'or', label: 'Or', emoji: '🥇', minOrders: 8, maxOrders: null, color: '#D4AF37' },
+  ];
+  function getTier(count){
+    if(count <= 0) return null;
+    for(const t of TIERS){
+      if(count >= t.minOrders && (t.maxOrders === null || count <= t.maxOrders)) return t;
+    }
+    return TIERS[TIERS.length - 1];
+  }
+  const tier = getTier(data.orders_count);
+  const tierBadge = tier
+    ? `<span class="loyalty-tier-badge" style="background:${tier.color};">${tier.emoji} ${tier.label}</span>`
+    : '';
+
+  // Formatter les dates
+  const fmtDate = iso => {
+    if(!iso) return '—';
+    return new Date(iso.replace(' ', 'T') + 'Z').toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  };
+  const fmtDateTime = iso => {
+    if(!iso) return '—';
+    return new Date(iso.replace(' ', 'T') + 'Z').toLocaleString('fr-FR', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+  };
+
+  const statusLabels = {
+    recue: 'Reçue',
+    en_preparation: 'En prép.',
+    prete: 'Prête',
+    en_livraison: 'En livraison',
+    livree: 'Livrée',
+    servie: 'Servie',
+    annulee: 'Annulée',
+  };
+  const modeLabels = {
+    livraison: '🛵 Livraison',
+    emporter: '🥡 À emporter',
+    surplace: '🍽️ Sur place',
+  };
+
+  const ordersHtml = s.totalOrders === 0
+    ? '<p class="hint" style="text-align:center; padding:20px;">Aucune commande pour ce client.</p>'
+    : data.orders.map(o => {
+        const itemsTxt = o.items.map(i => `${i.qty}× ${escapeHtmlAdmin(i.dish_name)}`).join(', ');
+        const statusClass = o.status === 'annulee' ? 'style="color:var(--red);"' : '';
+        return `
+          <div class="client-order-row">
+            <div class="cor-left">
+              <strong>#${o.id}</strong>
+              <span class="cor-date">${fmtDateTime(o.created_at)}</span>
+              <span class="cor-mode">${modeLabels[o.mode] || o.mode}</span>
+            </div>
+            <div class="cor-center">
+              <span class="cor-items">${itemsTxt}</span>
+            </div>
+            <div class="cor-right">
+              <strong>${fmt(o.total)}</strong>
+              <span class="cor-status" ${statusClass}>${statusLabels[o.status] || o.status}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+  body.innerHTML = `
+    <div class="client-history-header">
+      <div>
+        <h2 style="margin-bottom:6px;">${data.customer_name ? escapeHtmlAdmin(data.customer_name) : 'Client'}</h2>
+        <div class="client-history-phone">📞 ${data.phone}</div>
+        <div style="margin-top:8px;">${tierBadge}</div>
+      </div>
+      <a class="btn-primary sm" href="tel:${data.phone}" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+        📞 Appeler
+      </a>
+    </div>
+
+    <div class="client-history-stats">
+      <div class="chs-card"><strong>${s.totalOrders}</strong><span>commandes</span></div>
+      <div class="chs-card"><strong>${fmt(s.totalSpent)}</strong><span>total dépensé</span></div>
+      <div class="chs-card"><strong>${fmt(s.avgBasket)}</strong><span>panier moyen</span></div>
+      <div class="chs-card"><strong>${s.cancelled}</strong><span>annulées</span></div>
+    </div>
+
+    <div class="client-history-meta">
+      <span>Première commande : <strong>${fmtDate(s.firstOrder)}</strong></span>
+      <span>Dernière commande : <strong>${fmtDate(s.lastOrder)}</strong></span>
+    </div>
+
+    <div class="client-history-modes">
+      <span>🛵 ${s.byMode.livraison} livraison${s.byMode.livraison > 1 ? 's' : ''}</span>
+      <span>🥡 ${s.byMode.emporter} à emporter</span>
+      <span>🍽️ ${s.byMode.surplace} sur place</span>
+    </div>
+
+    <h3 style="margin:20px 0 10px; font-size:1rem;">Historique des commandes</h3>
+    <div class="client-orders-list">
+      ${ordersHtml}
+    </div>
+  `;
+}
+
 checkAuthAndShow();
