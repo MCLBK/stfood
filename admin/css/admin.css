@@ -306,3 +306,61 @@ input, select, textarea{font-family:inherit;}
   display:inline-block; color:#fff; font-weight:800; font-size:0.72rem;
   padding:5px 11px; border-radius:999px; letter-spacing:0.02em; white-space:nowrap;
 }
+
+/* Historique client */
+.client-history-header{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+  padding-bottom:20px; border-bottom:1px solid var(--line); margin-bottom:20px;
+}
+.client-history-header h2{font-size:1.3rem;}
+.client-history-phone{
+  font-size:0.92rem; color:var(--ink-soft); font-family:'Courier New', monospace;
+}
+
+.client-history-stats{
+  display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px;
+}
+@media(min-width:640px){ .client-history-stats{grid-template-columns:repeat(4,1fr);} }
+
+.chs-card{
+  background:var(--paper); border:1px solid var(--line); border-radius:10px;
+  padding:14px; text-align:center;
+}
+.chs-card strong{display:block; font-size:1.15rem; font-weight:800;}
+.chs-card span{font-size:0.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.03em;}
+
+.client-history-meta{
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  font-size:0.82rem; color:var(--ink-soft); margin-bottom:12px;
+}
+.client-history-meta strong{color:var(--ink);}
+
+.client-history-modes{
+  display:flex; gap:14px; flex-wrap:wrap; font-size:0.85rem;
+  color:var(--ink-soft); padding:12px; background:var(--paper); border-radius:10px;
+}
+
+.client-orders-list{
+  max-height:400px; overflow-y:auto; border:1px solid var(--line); border-radius:10px;
+}
+.client-order-row{
+  display:grid; grid-template-columns:1fr 1.5fr auto; gap:12px;
+  padding:12px 14px; border-bottom:1px solid var(--line);
+  align-items:center;
+}
+.client-order-row:last-child{border-bottom:none;}
+.client-order-row:hover{background:var(--paper);}
+.cor-left{display:flex; flex-direction:column; gap:3px;}
+.cor-left strong{font-size:0.88rem;}
+.cor-date{font-size:0.72rem; color:var(--ink-soft);}
+.cor-mode{font-size:0.72rem; color:var(--brass); font-weight:600;}
+.cor-center{font-size:0.82rem; color:var(--ink-soft); line-height:1.4;}
+.cor-items{font-size:0.8rem;}
+.cor-right{display:flex; flex-direction:column; align-items:flex-end; gap:3px;}
+.cor-right strong{font-size:0.92rem;}
+.cor-status{font-size:0.72rem; color:var(--ink-soft); font-weight:600;}
+
+@media(max-width:640px){
+  .client-order-row{grid-template-columns:1fr auto;}
+  .cor-center{grid-column:1/-1; padding-top:6px;}
+}
