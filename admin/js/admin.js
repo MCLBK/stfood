@@ -566,8 +566,8 @@ function renderLoyalty(){
       ? new Date(c.last_order_at.replace(' ', 'T') + 'Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
       : '—';
 
-    return `
-      <div class="row loyalty-row">
+return `
+      <div class="row loyalty-row" onclick="openClientHistory('${c.phone}')" style="cursor:pointer;" title="Voir l'historique">
         <div class="loyalty-info">
           ${name}
           <span class="loyalty-phone">${c.phone}</span>
