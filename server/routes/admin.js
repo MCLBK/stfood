@@ -614,4 +614,62 @@ router.patch('/cuisine/orders/:id/preparing', requireCuisine, (req, res) => {
   res.json({ ok: true });
 });
 
+/* ============================================================
+   HISTORIQUE CLIENT — toutes les commandes d'un client
+   ============================================================ */
+router.get('/admin/loyalty/:phone/orders', (req, res) => {
+  const { phone } = req.params;
+
+  // Vérifier que le client existe dans la table loyalty
+  const loyalty = db.prepare('SELECT * FROM loyalty WHERE phone = ?').get(phone);
+  if (!loyalty) {
+    return res.status(404).json({ error: 'Client introuvable.' });
+  }
+
+  // Récupérer toutes les commandes de ce client
+  const orders = db.prepare(`
+    SELECT * FROM orders
+    WHERE customer_phone = ?
+    ORDER BY created_at DESC
+    LIMIT 200
+  `).all(phone);
+
+  // Enrichir avec les items de chaque commande
+  const ordersWithItems = orders.map(o => ({
+    ...o,
+    items: db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(o.id),
+  }));
+
+  // Calculer les stats
+  const validOrders = orders.filter(o => o.status !== 'annulee');
+  const totalSpent = validOrders.reduce((s, o) => s + (o.total || 0), 0);
+  const avgBasket = validOrders.length ? Math.round(totalSpent / validOrders.length) : 0;
+  const firstOrder = orders.length ? orders[orders.length - 1].created_at : null;
+  const lastOrder = orders.length ? orders[0].created_at : null;
+
+  // Récupérer le nom (dernière commande connue)
+  const lastOrderWithName = orders.find(o => o.customer_name);
+  const customerName = lastOrderWithName ? lastOrderWithName.customer_name : null;
+
+  res.json({
+    phone,
+    customer_name: customerName,
+    orders_count: loyalty.orders_count,
+    orders: ordersWithItems,
+    stats: {
+      totalOrders: orders.length,
+      totalSpent,
+      avgBasket,
+      firstOrder,
+      lastOrder,
+      cancelled: orders.filter(o => o.status === 'annulee').length,
+      byMode: {
+        livraison: validOrders.filter(o => o.mode === 'livraison').length,
+        emporter: validOrders.filter(o => o.mode === 'emporter').length,
+        surplace: validOrders.filter(o => o.mode === 'surplace').length,
+      },
+    },
+  });
+});
+
 module.exports = router;
